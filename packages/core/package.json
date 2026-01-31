@@ -1,0 +1,31 @@
+{
+  "name": "@dolly/core",
+  "version": "0.1.0",
+  "description": "Execution engine for dolly — record cinematic product demos with Playwright",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dolly/schema": "workspace:*",
+    "playwright": "^1.49.0"
+  },
+  "peerDependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@ffmpeg-installer/ffmpeg": {
+      "optional": true
+    }
+  }
+}

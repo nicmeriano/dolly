@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme — Project Management</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+
+    /* --- Layout --- */
+    .page { display: none; }
+    .page.active { display: block; }
+    .shell { display: none; }
+    .shell.active { display: flex; min-height: 100vh; }
+
+    /* --- Sidebar --- */
+    .sidebar { width: 240px; background: #1e1e2e; color: #cdd6f4; padding: 24px 16px; flex-shrink: 0; }
+    .sidebar .logo { font-size: 18px; font-weight: 700; color: white; margin-bottom: 32px; padding: 0 8px; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
+      color: #a6adc8; text-decoration: none; font-size: 14px; margin-bottom: 4px; transition: all 0.15s;
+    }
+    .sidebar nav a:hover { background: #313244; color: #cdd6f4; }
+    .sidebar nav a.active { background: #45475a; color: white; font-weight: 600; }
+    .sidebar nav a .icon { width: 20px; text-align: center; }
+    .sidebar .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid #313244; }
+    .sidebar .user-info { display: flex; align-items: center; gap: 10px; padding: 8px; }
+    .sidebar .avatar { width: 32px; height: 32px; border-radius: 50%; background: #89b4fa; display: flex; align-items: center; justify-content: center; color: #1e1e2e; font-weight: 700; font-size: 13px; }
+    .sidebar .user-name { font-size: 13px; color: #cdd6f4; }
+    .sidebar .user-email { font-size: 11px; color: #6c7086; }
+
+    /* --- Main content --- */
+    .main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+    .main h1 { font-size: 24px; margin-bottom: 4px; }
+    .main .page-desc { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+    /* --- Login page --- */
+    .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { width: 400px; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .login-box h1 { font-size: 22px; margin-bottom: 6px; }
+    .login-box .subtitle { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+    /* --- Forms --- */
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #333; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="url"], textarea, select {
+      width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px;
+      font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; background: white;
+    }
+    input:focus, textarea:focus, select:focus { border-color: #4f46e5; }
+    textarea { resize: vertical; min-height: 80px; }
+    select { cursor: pointer; appearance: auto; }
+
+    /* --- Toggle --- */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 14px; }
+    .toggle-label span { display: block; font-size: 12px; color: #888; margin-top: 2px; }
+    .toggle { position: relative; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0; }
+    .toggle input { display: none; }
+    .toggle .slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; transition: 0.2s; }
+    .toggle .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .toggle input:checked + .slider { background: #4f46e5; }
+    .toggle input:checked + .slider::before { transform: translateX(20px); }
+
+    /* --- Buttons --- */
+    .btn {
+      padding: 10px 20px; background: #4f46e5; color: white; border: none;
+      border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+    }
+    .btn:hover { background: #4338ca; }
+    .btn:disabled { background: #a5a3d9; cursor: not-allowed; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-danger { background: #ef4444; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+    .btn-row { display: flex; gap: 12px; margin-top: 24px; }
+
+    /* --- Cards --- */
+    .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+
+    /* --- Stat cards --- */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .stat-card .stat-label { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 700; }
+    .stat-card .stat-change { font-size: 12px; margin-top: 4px; }
+    .stat-card .stat-change.up { color: #16a34a; }
+    .stat-card .stat-change.down { color: #dc2626; }
+
+    /* --- Project list --- */
+    .project-table { width: 100%; border-collapse: collapse; }
+    .project-table th { text-align: left; font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 16px; border-bottom: 1px solid #eee; }
+    .project-table td { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+    .project-table tr:hover td { background: #fafafa; }
+    .project-table .name-cell { font-weight: 600; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge.active { background: #dcfce7; color: #16a34a; }
+    .badge.paused { background: #fef9c3; color: #a16207; }
+    .badge.archived { background: #f3f4f6; color: #6b7280; }
+    .badge.planning { background: #dbeafe; color: #2563eb; }
+
+    /* --- Modal --- */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 28px; width: 480px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .modal h2 { font-size: 18px; margin-bottom: 4px; }
+    .modal .modal-desc { color: #666; font-size: 14px; margin-bottom: 24px; }
+
+    /* --- Toast --- */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1e1e2e; color: white; padding: 14px 24px; border-radius: 10px; font-size: 14px; display: none; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .toast.show { display: flex; align-items: center; gap: 10px; }
+    .toast .toast-icon { color: #a6e3a1; }
+
+    /* --- Activity feed --- */
+    .activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .activity-dot.blue { background: #3b82f6; }
+    .activity-dot.green { background: #22c55e; }
+    .activity-dot.orange { background: #f59e0b; }
+    .activity-dot.purple { background: #8b5cf6; }
+    .activity-text { font-size: 14px; }
+    .activity-text .time { color: #999; font-size: 12px; display: block; margin-top: 2px; }
+
+    /* --- Search --- */
+    .search-bar { position: relative; margin-bottom: 20px; }
+    .search-bar input { padding-left: 36px; }
+    .search-bar .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 14px; }
+
+    /* --- Tabs --- */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #eee; margin-bottom: 24px; }
+    .tab { padding: 10px 20px; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab:hover { color: #333; }
+    .tab.active { color: #4f46e5; border-bottom-color: #4f46e5; font-weight: 600; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== LOGIN PAGE ===== -->
+  <div class="page active" id="page-login">
+    <div class="login-wrapper">
+      <div class="login-box">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your Acme account to continue</p>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" />
+        </div>
+        <button class="btn" style="width:100%" id="login-btn" onclick="handleLogin()">Sign in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP SHELL ===== -->
+  <div class="shell" id="app-shell">
+    <div class="sidebar">
+      <div class="logo">Acme</div>
+      <nav>
+        <a href="#" class="active" data-page="dashboard"><span class="icon">&#9632;</span> Dashboard</a>
+        <a href="#" data-page="projects"><span class="icon">&#9776;</span> Projects</a>
+        <a href="#" data-page="settings"><span class="icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar">D</div>
+          <div>
+            <div class="user-name">Demo User</div>
+            <div class="user-email">demo@example.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <h1>Dashboard</h1>
+        <p class="page-desc">Overview of your workspace activity</p>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-label">Active projects</div>
+            <div class="stat-value">12</div>
+            <div class="stat-change up">+3 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tasks completed</div>
+            <div class="stat-value">284</div>
+            <div class="stat-change up">+18% vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Team members</div>
+            <div class="stat-value">8</div>
+            <div class="stat-change">No change</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px; margin-bottom: 16px;">Recent activity</h3>
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <div class="activity-text">Sarah deployed <strong>v2.4.1</strong> to production<span class="time">2 minutes ago</span></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div class="activity-text">All tests passing on <strong>main</strong> branch<span class="time">15 minutes ago</span></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <div class="activity-text">Mike opened a pull request: <strong>Add user onboarding flow</strong><span class="time">1 hour ago</span></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot purple"></div>
+            <div class="activity-text">New project <strong>Mobile App v3</strong> created<span class="time">3 hours ago</span></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <div class="activity-text">Lisa completed <strong>API rate limiting</strong> task<span class="time">5 hours ago</span></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div class="activity-text">Weekly report generated for <strong>Q4 Sprint 3</strong><span class="time">Yesterday</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROJECTS ===== -->
+      <div class="page" id="page-projects">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <h1>Projects</h1>
+          <button class="btn" id="new-project-btn" onclick="openModal()">+ New project</button>
+        </div>
+        <p class="page-desc">Manage and track all your team's projects</p>
+
+        <div class="search-bar">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" id="project-search" placeholder="Search projects..." oninput="filterProjects()" />
+        </div>
+
+        <div class="card" style="padding:0; overflow:hidden;">
+          <table class="project-table" id="project-table">
+            <thead>
+              <tr><th>Name</th><th>Status</th><th>Team</th><th>Updated</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="name-cell">Website Redesign</td><td><span class="badge active">Active</span></td><td>Design, Frontend</td><td>Just now</td></tr>
+              <tr><td class="name-cell">Mobile App v3</td><td><span class="badge active">Active</span></td><td>Mobile, Backend</td><td>2 hours ago</td></tr>
+              <tr><td class="name-cell">API Gateway</td><td><span class="badge active">Active</span></td><td>Backend, DevOps</td><td>1 day ago</td></tr>
+              <tr><td class="name-cell">User Onboarding</td><td><span class="badge planning">Planning</span></td><td>Product, Design</td><td>2 days ago</td></tr>
+              <tr><td class="name-cell">Analytics Dashboard</td><td><span class="badge active">Active</span></td><td>Frontend, Data</td><td>3 days ago</td></tr>
+              <tr><td class="name-cell">CI/CD Pipeline</td><td><span class="badge paused">Paused</span></td><td>DevOps</td><td>1 week ago</td></tr>
+              <tr><td class="name-cell">Design System v2</td><td><span class="badge active">Active</span></td><td>Design</td><td>1 week ago</td></tr>
+              <tr><td class="name-cell">Legacy Migration</td><td><span class="badge archived">Archived</span></td><td>Backend</td><td>2 weeks ago</td></tr>
+              <tr><td class="name-cell">Security Audit</td><td><span class="badge active">Active</span></td><td>Security, DevOps</td><td>2 weeks ago</td></tr>
+              <tr><td class="name-cell">Payments v2</td><td><span class="badge planning">Planning</span></td><td>Backend, Finance</td><td>3 weeks ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="page" id="page-settings">
+        <h1>Settings</h1>
+        <p class="page-desc">Configure your workspace preferences</p>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="general" onclick="switchTab('general')">General</div>
+          <div class="tab" data-tab="notifications" onclick="switchTab('notifications')">Notifications</div>
+          <div class="tab" data-tab="danger" onclick="switchTab('danger')">Danger Zone</div>
+        </div>
+
+        <div class="tab-content active" id="tab-general">
+          <div class="card">
+            <h3 style="font-size:15px; margin-bottom:16px;">Workspace</h3>
+            <div class="form-group">
+              <label for="workspace-name">Workspace name</label>
+              <input type="text" id="workspace-name" value="Acme Inc." />
+            </div>
+            <div class="form-group">
+              <label for="workspace-url">Workspace URL</label>
+              <input type="url" id="workspace-url" value="https://acme.app" />
+            </div>
+            <div class="form-group">
+              <label for="timezone-select">Timezone</label>
+              <select id="timezone-select">
+                <option>America/New_York</option>
+                <option selected>America/Los_Angeles</option>
+                <option>Europe/London</option>
+                <option>Asia/Tokyo</option>
+              </select>
+            </div>
+            <button class="btn" id="save-settings-btn" onclick="saveSettings()">Save changes</button>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-notifications">
+          <div class="card">
+            <h3 style="font-size:15px; margin-bottom:16px;">Email notifications</h3>
+            <div class="toggle-row">
+              <div class="toggle-label">Project updates<span>Get notified when projects change status</span></div>
+              <label class="toggle"><input type="checkbox" id="toggle-projects" checked onchange="handleToggle(this)"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">Task assignments<span>Receive emails for new task assignments</span></div>
+              <label class="toggle"><input type="checkbox" id="toggle-tasks" checked onchange="handleToggle(this)"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">Weekly digest<span>Summary of workspace activity every Monday</span></div>
+              <label class="toggle"><input type="checkbox" id="toggle-digest" onchange="handleToggle(this)"><span class="slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-label">Marketing emails<span>Product announcements and tips</span></div>
+              <label class="toggle"><input type="checkbox" id="toggle-marketing" onchange="handleToggle(this)"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-danger">
+          <div class="card" style="border: 1px solid #fecaca;">
+            <h3 style="font-size:15px; margin-bottom:8px; color: #dc2626;">Delete workspace</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:16px;">This action is permanent and cannot be undone. All projects, tasks, and data will be deleted.</p>
+            <button class="btn btn-danger btn-sm" id="delete-workspace-btn" onclick="showToast('This is a demo — nothing was deleted.')">Delete workspace</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NEW PROJECT MODAL ===== -->
+  <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <h2>Create new project</h2>
+      <p class="modal-desc">Set up a new project for your team</p>
+      <div class="form-group">
+        <label for="project-name">Project name</label>
+        <input type="text" id="project-name" placeholder="e.g. Website Redesign" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="project-status">Status</label>
+          <select id="project-status">
+            <option value="planning">Planning</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="project-team">Team</label>
+          <select id="project-team">
+            <option value="frontend">Frontend</option>
+            <option value="backend">Backend</option>
+            <option value="design">Design</option>
+            <option value="devops">DevOps</option>
+            <option value="mobile">Mobile</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="project-desc">Description</label>
+        <textarea id="project-desc" placeholder="Brief description of the project goals..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn" id="create-project-btn" onclick="createProject()">Create project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"><span class="toast-icon">&#10003;</span><span id="toast-msg"></span></div>
+
+  <script>
+    /* --- Login --- */
+    function handleLogin() {
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      setTimeout(() => {
+        document.getElementById('page-login').classList.remove('active');
+        document.getElementById('app-shell').classList.add('active');
+      }, 800);
+    }
+
+    /* --- Navigation --- */
+    document.querySelectorAll('.sidebar nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = link.dataset.page;
+        document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        document.querySelectorAll('.main > .page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+      });
+    });
+
+    /* --- Tabs --- */
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    /* --- Projects --- */
+    function filterProjects() {
+      const q = document.getElementById('project-search').value.toLowerCase();
+      document.querySelectorAll('#project-table tbody tr').forEach(row => {
+        const name = row.querySelector('.name-cell').textContent.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+    }
+
+    /* --- Modal --- */
+    function openModal() {
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('active');
+      document.getElementById('project-name').value = '';
+      document.getElementById('project-desc').value = '';
+    }
+    function createProject() {
+      const name = document.getElementById('project-name').value || 'Untitled';
+      const status = document.getElementById('project-status').value;
+      const team = document.getElementById('project-team').value;
+      const tbody = document.querySelector('#project-table tbody');
+      const row = document.createElement('tr');
+      row.innerHTML = `<td class="name-cell">${name}</td><td><span class="badge ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td><td>${team.charAt(0).toUpperCase() + team.slice(1)}</td><td>Just now</td>`;
+      tbody.insertBefore(row, tbody.firstChild);
+      closeModal();
+      showToast(`Project "${name}" created successfully`);
+    }
+
+    /* --- Settings --- */
+    function saveSettings() {
+      const btn = document.getElementById('save-settings-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = 'Save changes';
+        showToast('Settings saved successfully');
+      }, 600);
+    }
+    function handleToggle(el) {
+      const label = el.closest('.toggle-row').querySelector('.toggle-label').childNodes[0].textContent;
+      const state = el.checked ? 'enabled' : 'disabled';
+      showToast(`${label} ${state}`);
+    }
+
+    /* --- Toast --- */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>

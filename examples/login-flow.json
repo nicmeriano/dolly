@@ -1,0 +1,90 @@
+{
+  "$schema": "dolly/v1",
+  "version": 1,
+  "name": "login-flow",
+  "config": {
+    "baseUrl": "https://example.com",
+    "viewport": { "width": 1280, "height": 720 },
+    "fps": 25,
+    "browser": "chromium",
+    "normalization": {
+      "hideScrollbars": true,
+      "disableCursorBlink": true,
+      "disableAnimations": true,
+      "forceConsistentFonts": true,
+      "locale": "en-US",
+      "timezone": "America/New_York",
+      "colorScheme": "light",
+      "reducedMotion": "reduce"
+    },
+    "outputDir": ".dolly",
+    "outputName": "demo",
+    "outputFormat": "mp4"
+  },
+  "actions": [
+    {
+      "id": "navigate-to-login",
+      "description": "Open the login page",
+      "leadIn": 500,
+      "leadOut": 500,
+      "steps": [
+        {
+          "type": "navigate",
+          "url": "/login",
+          "waitUntil": "networkidle"
+        },
+        {
+          "type": "wait",
+          "duration": 1000
+        }
+      ]
+    },
+    {
+      "id": "fill-credentials",
+      "description": "Enter username and password",
+      "leadIn": 300,
+      "leadOut": 300,
+      "steps": [
+        {
+          "type": "click",
+          "selector": "#email"
+        },
+        {
+          "type": "type",
+          "selector": "#email",
+          "text": "demo@example.com",
+          "typeDelay": 50
+        },
+        {
+          "type": "click",
+          "selector": "#password"
+        },
+        {
+          "type": "type",
+          "selector": "#password",
+          "text": "password123",
+          "typeDelay": 40
+        }
+      ]
+    },
+    {
+      "id": "submit-login",
+      "description": "Click login and wait for dashboard",
+      "leadIn": 300,
+      "leadOut": 1000,
+      "steps": [
+        {
+          "type": "click",
+          "selector": "button[type='submit']",
+          "pauseAfter": 500
+        },
+        {
+          "type": "waitForSelector",
+          "selector": ".dashboard",
+          "state": "visible",
+          "timeout": 10000
+        }
+      ]
+    }
+  ]
+}

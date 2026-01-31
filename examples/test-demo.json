@@ -1,0 +1,151 @@
+{
+  "$schema": "dolly/v1",
+  "version": 1,
+  "name": "acme-demo",
+  "config": {
+    "baseUrl": "http://localhost:3847",
+    "viewport": { "width": 1280, "height": 720 },
+    "fps": 25,
+    "browser": "chromium",
+    "normalization": {
+      "hideScrollbars": true,
+      "disableCursorBlink": true,
+      "disableAnimations": false,
+      "forceConsistentFonts": true,
+      "locale": "en-US",
+      "timezone": "America/New_York",
+      "colorScheme": "light",
+      "reducedMotion": "no-preference"
+    },
+    "outputDir": ".dolly",
+    "outputFormat": "mp4"
+  },
+  "actions": [
+    {
+      "id": "login",
+      "description": "Sign in to the app",
+      "leadIn": 800,
+      "leadOut": 300,
+      "steps": [
+        { "type": "navigate", "url": "/", "waitUntil": "networkidle" },
+        { "type": "wait", "duration": 600 },
+        { "type": "click", "selector": "#email" },
+        { "type": "type", "selector": "#email", "text": "demo@example.com", "typeDelay": 55 },
+        { "type": "click", "selector": "#password", "pauseBefore": 200 },
+        { "type": "type", "selector": "#password", "text": "s3cureP@ss!", "typeDelay": 50 },
+        { "type": "wait", "duration": 400 },
+        { "type": "click", "selector": "#login-btn", "pauseAfter": 1000 },
+        { "type": "waitForSelector", "selector": "#app-shell.active", "state": "attached", "timeout": 5000 }
+      ]
+    },
+    {
+      "id": "view-dashboard",
+      "description": "Explore the dashboard stats and activity feed",
+      "leadIn": 500,
+      "leadOut": 400,
+      "steps": [
+        { "type": "wait", "duration": 600 },
+        { "type": "hover", "selector": ".stat-card:nth-child(1)", "holdDuration": 700 },
+        { "type": "hover", "selector": ".stat-card:nth-child(2)", "holdDuration": 700 },
+        { "type": "hover", "selector": ".stat-card:nth-child(3)", "holdDuration": 700 },
+        { "type": "wait", "duration": 300 },
+        { "type": "scroll", "target": ".main", "direction": "down", "amount": 250, "duration": 300 },
+        { "type": "wait", "duration": 800 },
+        { "type": "scroll", "target": ".main", "direction": "up", "amount": 250, "duration": 200 }
+      ]
+    },
+    {
+      "id": "nav-to-projects",
+      "description": "Navigate to projects page and browse the list",
+      "leadIn": 300,
+      "leadOut": 300,
+      "steps": [
+        { "type": "click", "selector": "[data-page='projects']", "pauseAfter": 500 },
+        { "type": "wait", "duration": 600 },
+        { "type": "hover", "selector": "#project-table tbody tr:nth-child(1)", "holdDuration": 500 },
+        { "type": "hover", "selector": "#project-table tbody tr:nth-child(2)", "holdDuration": 400 },
+        { "type": "hover", "selector": "#project-table tbody tr:nth-child(3)", "holdDuration": 400 }
+      ]
+    },
+    {
+      "id": "search-projects",
+      "description": "Filter the project list with search",
+      "leadIn": 300,
+      "leadOut": 500,
+      "steps": [
+        { "type": "click", "selector": "#project-search" },
+        { "type": "type", "selector": "#project-search", "text": "Design", "typeDelay": 80 },
+        { "type": "wait", "duration": 1000 },
+        { "type": "type", "selector": "#project-search", "text": "", "clearBefore": true, "typeDelay": 0, "pauseAfter": 400 }
+      ]
+    },
+    {
+      "id": "create-project",
+      "description": "Open the new project modal and create a project",
+      "leadIn": 300,
+      "leadOut": 500,
+      "steps": [
+        { "type": "click", "selector": "#new-project-btn", "pauseAfter": 500 },
+        { "type": "waitForSelector", "selector": ".modal-overlay.active", "state": "attached", "timeout": 3000 },
+        { "type": "wait", "duration": 400 },
+        { "type": "click", "selector": "#project-name" },
+        { "type": "type", "selector": "#project-name", "text": "Dolly Recorder", "typeDelay": 60 },
+        { "type": "select", "selector": "#project-status", "value": "active", "pauseBefore": 300, "pauseAfter": 300 },
+        { "type": "select", "selector": "#project-team", "value": "frontend", "pauseBefore": 200, "pauseAfter": 300 },
+        { "type": "click", "selector": "#project-desc", "pauseBefore": 200 },
+        { "type": "type", "selector": "#project-desc", "text": "Cinematic product demo recorder powered by Playwright and ffmpeg.", "typeDelay": 35 },
+        { "type": "wait", "duration": 500 },
+        { "type": "click", "selector": "#create-project-btn", "pauseAfter": 800 },
+        { "type": "wait", "duration": 1200, "comment": "Let toast appear and new row show" }
+      ]
+    },
+    {
+      "id": "settings-general",
+      "description": "Navigate to settings and update workspace name",
+      "leadIn": 300,
+      "leadOut": 300,
+      "steps": [
+        { "type": "click", "selector": "[data-page='settings']", "pauseAfter": 500 },
+        { "type": "wait", "duration": 400 },
+        { "type": "click", "selector": "#workspace-name" },
+        { "type": "type", "selector": "#workspace-name", "text": "Acme Studios", "clearBefore": true, "typeDelay": 50 },
+        { "type": "wait", "duration": 300 },
+        { "type": "click", "selector": "#save-settings-btn", "pauseAfter": 1000 }
+      ]
+    },
+    {
+      "id": "settings-notifications",
+      "description": "Switch to notifications tab and toggle some settings",
+      "leadIn": 300,
+      "leadOut": 300,
+      "steps": [
+        { "type": "click", "selector": ".tab[data-tab='notifications']", "pauseAfter": 400 },
+        { "type": "wait", "duration": 400 },
+        { "type": "click", "selector": "#toggle-digest ~ .slider", "pauseAfter": 800 },
+        { "type": "click", "selector": "#toggle-marketing ~ .slider", "pauseAfter": 800 },
+        { "type": "click", "selector": "#toggle-projects ~ .slider", "pauseAfter": 800 }
+      ]
+    },
+    {
+      "id": "settings-danger",
+      "description": "Peek at the danger zone tab",
+      "leadIn": 200,
+      "leadOut": 600,
+      "steps": [
+        { "type": "click", "selector": ".tab[data-tab='danger']", "pauseAfter": 400 },
+        { "type": "wait", "duration": 800 },
+        { "type": "hover", "selector": "#delete-workspace-btn", "holdDuration": 1000 }
+      ]
+    },
+    {
+      "id": "back-to-dashboard",
+      "description": "Return to dashboard as the closing shot",
+      "leadIn": 300,
+      "leadOut": 1200,
+      "steps": [
+        { "type": "click", "selector": "[data-page='dashboard']", "pauseAfter": 500 },
+        { "type": "wait", "duration": 800 }
+      ]
+    }
+  ]
+}
