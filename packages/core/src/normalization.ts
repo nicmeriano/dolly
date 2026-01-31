@@ -76,7 +76,10 @@ export function buildCursorCSS(config: CursorConfig): string {
       background: ${config.color};
       opacity: ${config.opacity};
       transform: translate(-50%, -50%);
-      transition: left 150ms ease-out, top 150ms ease-out, transform 100ms ease;
+      transition-property: left, top, transform !important;
+      transition-duration: 150ms, 150ms, 100ms !important;
+      transition-timing-function: ease-out, ease-out, ease !important;
+      transition-delay: 0ms !important;
       left: -100px;
       top: -100px;
     }
@@ -117,8 +120,6 @@ export function buildInitScript(config: NormalizationConfig | BuildInitScriptOpt
   const cursorConfig = "normalization" in config ? config.cursor : undefined;
 
   const css = buildNormalizationCSS(normConfig);
-  const js = buildNormalizationJS();
-
   const cursorCss = cursorConfig?.show ? buildCursorCSS(cursorConfig) : "";
   const cursorJs = cursorConfig?.show ? buildCursorJS() : "";
 
@@ -127,15 +128,36 @@ export function buildInitScript(config: NormalizationConfig | BuildInitScriptOpt
 
   return `
     (function() {
-      // Inject normalization + cursor CSS
-      var style = document.createElement('style');
-      style.setAttribute('data-dolly', 'normalization');
-      style.id = 'dolly-normalization';
-      style.textContent = ${cssLiteral};
-      (document.head || document.documentElement).appendChild(style);
+      // Non-DOM overrides can run immediately
+      window.alert = function() {};
+      window.confirm = function() { return true; };
+      window.prompt = function() { return null; };
 
-      ${js}
-      ${cursorJs}
+      function dollyInit() {
+        // Inject normalization + cursor CSS
+        if (document.getElementById('dolly-normalization')) return;
+        var style = document.createElement('style');
+        style.setAttribute('data-dolly', 'normalization');
+        style.id = 'dolly-normalization';
+        style.textContent = ${cssLiteral};
+        var target = document.head || document.documentElement || document.querySelector('html');
+        if (target) {
+          target.appendChild(style);
+        }
+
+        ${cursorJs}
+      }
+
+      // Run immediately if DOM is ready, otherwise defer
+      if (document.documentElement) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', dollyInit, { once: true });
+        } else {
+          dollyInit();
+        }
+      } else {
+        document.addEventListener('DOMContentLoaded', dollyInit, { once: true });
+      }
     })();
   `;
 }

@@ -15,6 +15,7 @@ export interface ExecuteActionOptions {
   events: TypedEmitter;
   signal?: AbortSignal;
   fast?: boolean;
+  showCursor?: boolean;
 }
 
 export interface ExecuteActionResult {
@@ -24,7 +25,7 @@ export interface ExecuteActionResult {
 export async function executeAction(
   options: ExecuteActionOptions,
 ): Promise<ExecuteActionResult> {
-  const { page, context, action, actionIndex, totalActions, baseUrl, retries, events, signal, fast } = options;
+  const { page, context, action, actionIndex, totalActions, baseUrl, retries, events, signal, fast, showCursor } = options;
 
   events.emit("action:start", {
     actionId: action.id,
@@ -68,7 +69,7 @@ export async function executeAction(
 
     for (let attempt = 0; attempt <= stepRetries; attempt++) {
       try {
-        await executeStep(page, step, i, { baseUrl, fast });
+        await executeStep(page, step, i, { baseUrl, fast, showCursor });
         succeeded = true;
         break;
       } catch (err) {

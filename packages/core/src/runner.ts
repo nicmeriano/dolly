@@ -128,10 +128,10 @@ async function executeRun(
   });
 
   const page = await context.newPage();
-  await page.addInitScript(buildInitScript({
+  await page.addInitScript({ content: buildInitScript({
     normalization: config.normalization,
     cursor: config.cursor,
-  }));
+  }) });
 
   const startTime = Date.now();
 
@@ -154,6 +154,7 @@ async function executeRun(
         retries: config.retries,
         events,
         signal,
+        showCursor: config.cursor.show,
       });
 
       manifest.actions.push({
@@ -241,10 +242,10 @@ async function executeTest(
   });
 
   const page = await context.newPage();
-  await page.addInitScript(buildInitScript({
+  await page.addInitScript({ content: buildInitScript({
     normalization: config.normalization,
     // No cursor in test mode
-  }));
+  }) });
 
   const startTime = Date.now();
   const stepResults: TestStepResult[] = [];

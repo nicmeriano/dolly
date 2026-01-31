@@ -6,6 +6,7 @@ import { resolveUrl } from "./url.js";
 export interface StepExecutorOptions {
   baseUrl: string;
   fast?: boolean; // skip pauses in replay mode
+  showCursor?: boolean; // position fake cursor before interactions
 }
 
 export async function executeStep(
@@ -34,6 +35,38 @@ export async function executeStep(
   }
 }
 
+/**
+ * Move the fake cursor element to the center of a target element.
+ * Resolves the element's bounding box and sets the cursor position
+ * via page.evaluate(), then waits for the CSS transition to render
+ * in video frames.
+ */
+async function moveCursorTo(
+  page: Page,
+  selector: string,
+  fast?: boolean,
+): Promise<void> {
+  const locator = page.locator(selector);
+  const box = await locator.boundingBox().catch(() => null);
+  if (!box) return;
+
+  const x = Math.round(box.x + box.width / 2);
+  const y = Math.round(box.y + box.height / 2);
+
+  await page.evaluate(({ cx, cy }) => {
+    const el = document.querySelector('.dolly-cursor') as HTMLElement | null;
+    if (el) {
+      el.style.left = cx + 'px';
+      el.style.top = cy + 'px';
+    }
+  }, { cx: x, cy: y });
+
+  // Wait for CSS transition (150ms) to complete so video captures the motion
+  if (!fast) {
+    await page.waitForTimeout(200);
+  }
+}
+
 async function executeStepAction(
   page: Page,
   step: Step,
@@ -41,6 +74,9 @@ async function executeStepAction(
 ): Promise<void> {
   switch (step.type) {
     case "click": {
+      if (options.showCursor) {
+        await moveCursorTo(page, step.selector, options.fast);
+      }
       const locator = page.locator(step.selector);
       await locator.click({
         button: step.button,
@@ -51,6 +87,9 @@ async function executeStepAction(
     }
 
     case "type": {
+      if (options.showCursor) {
+        await moveCursorTo(page, step.selector, options.fast);
+      }
       const locator = page.locator(step.selector);
       if (step.clearBefore) {
         await locator.clear();
@@ -69,6 +108,9 @@ async function executeStepAction(
       if (step.target === "viewport") {
         await page.mouse.wheel(deltaX, deltaY);
       } else {
+        if (options.showCursor) {
+          await moveCursorTo(page, step.target, options.fast);
+        }
         await page.locator(step.target).evaluate(
           (el, { dx, dy }) => {
             el.scrollBy(dx, dy);
@@ -84,6 +126,9 @@ async function executeStepAction(
     }
 
     case "hover": {
+      if (options.showCursor) {
+        await moveCursorTo(page, step.selector, options.fast);
+      }
       const locator = page.locator(step.selector);
       await locator.hover();
       if (!options.fast && step.holdDuration) {
@@ -109,6 +154,9 @@ async function executeStepAction(
     }
 
     case "select": {
+      if (options.showCursor) {
+        await moveCursorTo(page, step.selector, options.fast);
+      }
       const locator = page.locator(step.selector);
       await locator.selectOption(step.value);
       break;
