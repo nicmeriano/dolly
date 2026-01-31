@@ -1,5 +1,5 @@
-export { run } from "./runner.js";
-export type { RunOptions, RunResult, RunHandle } from "./runner.js";
+export { run, test } from "./runner.js";
+export type { RunOptions, RunResult, RunHandle, TestResult, TestStepResult, TestHandle } from "./runner.js";
 
 export { executeAction } from "./action-recorder.js";
 export type { ExecuteActionOptions, ExecuteActionResult } from "./action-recorder.js";
@@ -14,7 +14,8 @@ export { readManifest, writeManifest } from "./manifest.js";
 
 export { resolveFfmpegBinary, runFfmpeg } from "./ffmpeg.js";
 
-export { buildNormalizationCSS, buildInitScript } from "./normalization.js";
+export { buildNormalizationCSS, buildCursorCSS, buildCursorJS, buildInitScript } from "./normalization.js";
+export type { BuildInitScriptOptions } from "./normalization.js";
 
 export { resolveUrl } from "./url.js";
 

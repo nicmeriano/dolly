@@ -14,6 +14,7 @@ export interface ExecuteActionOptions {
   retries: RetryConfig;
   events: TypedEmitter;
   signal?: AbortSignal;
+  fast?: boolean;
 }
 
 export interface ExecuteActionResult {
@@ -23,7 +24,7 @@ export interface ExecuteActionResult {
 export async function executeAction(
   options: ExecuteActionOptions,
 ): Promise<ExecuteActionResult> {
-  const { page, context, action, actionIndex, totalActions, baseUrl, retries, events, signal } = options;
+  const { page, context, action, actionIndex, totalActions, baseUrl, retries, events, signal, fast } = options;
 
   events.emit("action:start", {
     actionId: action.id,
@@ -40,7 +41,7 @@ export async function executeAction(
   }
 
   // leadIn pause — recorded dwell time
-  if (action.leadIn > 0) {
+  if (!fast && action.leadIn > 0) {
     await page.waitForTimeout(action.leadIn);
   }
 
@@ -67,7 +68,7 @@ export async function executeAction(
 
     for (let attempt = 0; attempt <= stepRetries; attempt++) {
       try {
-        await executeStep(page, step, i, { baseUrl });
+        await executeStep(page, step, i, { baseUrl, fast });
         succeeded = true;
         break;
       } catch (err) {
@@ -97,7 +98,7 @@ export async function executeAction(
   }
 
   // leadOut pause — recorded dwell time
-  if (action.leadOut > 0) {
+  if (!fast && action.leadOut > 0) {
     await page.waitForTimeout(action.leadOut);
   }
 

@@ -10,12 +10,14 @@ export {
   PlanConfigSchema,
   RetryConfigSchema,
   NormalizationConfigSchema,
+  CursorConfigSchema,
   ViewportSchema,
 } from "./config.js";
 export type {
   PlanConfig,
   RetryConfig,
   NormalizationConfig,
+  CursorConfig,
 } from "./config.js";
 
 export {

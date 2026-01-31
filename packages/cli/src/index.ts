@@ -5,6 +5,7 @@ import { recordCommand } from "./commands/record.js";
 import { stitchCommand } from "./commands/stitch.js";
 import { validateCommand } from "./commands/validate.js";
 import { inspectCommand } from "./commands/inspect.js";
+import { testCommand } from "./commands/test.js";
 
 const program = new Command()
   .name("dolly")
@@ -15,5 +16,6 @@ program.addCommand(recordCommand);
 program.addCommand(stitchCommand);
 program.addCommand(validateCommand);
 program.addCommand(inspectCommand);
+program.addCommand(testCommand);
 
 program.parse();

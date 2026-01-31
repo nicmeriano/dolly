@@ -24,6 +24,13 @@ export const DEFAULTS = {
     clearStorageBetweenActions: false,
   },
 
+  cursor: {
+    show: true,
+    size: 20,
+    color: "#000000",
+    opacity: 0.8,
+  },
+
   step: {
     typeDelay: 50,
   },

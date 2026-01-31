@@ -29,12 +29,22 @@ export const ViewportSchema = z.object({
   height: z.number().int().min(1),
 });
 
+export const CursorConfigSchema = z.object({
+  show: z.boolean().default(DEFAULTS.cursor.show),
+  size: z.number().int().min(4).max(64).default(DEFAULTS.cursor.size),
+  color: z.string().default(DEFAULTS.cursor.color),
+  opacity: z.number().min(0).max(1).default(DEFAULTS.cursor.opacity),
+});
+
+export type CursorConfig = z.infer<typeof CursorConfigSchema>;
+
 export const PlanConfigSchema = z.object({
   baseUrl: z.string().url(),
   viewport: ViewportSchema,
   fps: z.number().int().min(1).max(60).default(DEFAULTS.fps),
   browser: z.literal("chromium").default(DEFAULTS.browser),
   normalization: NormalizationConfigSchema.default({}),
+  cursor: CursorConfigSchema.default({}),
   outputDir: z.string().default(DEFAULTS.outputDir),
   outputName: z.string().default(DEFAULTS.outputName),
   outputFormat: z.enum(["mp4", "webm"]).default(DEFAULTS.outputFormat),

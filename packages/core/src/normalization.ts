@@ -1,4 +1,4 @@
-import type { NormalizationConfig } from "@dolly/schema";
+import type { NormalizationConfig, CursorConfig } from "@dolly/schema";
 
 export function buildNormalizationCSS(config: NormalizationConfig): string {
   const rules: string[] = [];
@@ -64,20 +64,78 @@ export function buildNormalizationJS(): string {
   `;
 }
 
-export function buildInitScript(config: NormalizationConfig): string {
-  const css = buildNormalizationCSS(config);
+export function buildCursorCSS(config: CursorConfig): string {
+  return `
+    .dolly-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2147483647;
+      border-radius: 50%;
+      width: ${config.size}px;
+      height: ${config.size}px;
+      background: ${config.color};
+      opacity: ${config.opacity};
+      transform: translate(-50%, -50%);
+      transition: left 150ms ease-out, top 150ms ease-out, transform 100ms ease;
+      left: -100px;
+      top: -100px;
+    }
+    .dolly-cursor--clicking {
+      transform: translate(-50%, -50%) scale(0.75);
+    }
+  `;
+}
+
+export function buildCursorJS(): string {
+  return `
+    var dollyCursor = document.createElement('div');
+    dollyCursor.className = 'dolly-cursor';
+    document.documentElement.appendChild(dollyCursor);
+
+    document.addEventListener('mousemove', function(e) {
+      dollyCursor.style.left = e.clientX + 'px';
+      dollyCursor.style.top = e.clientY + 'px';
+    }, true);
+
+    document.addEventListener('mousedown', function() {
+      dollyCursor.classList.add('dolly-cursor--clicking');
+    }, true);
+
+    document.addEventListener('mouseup', function() {
+      dollyCursor.classList.remove('dolly-cursor--clicking');
+    }, true);
+  `;
+}
+
+export interface BuildInitScriptOptions {
+  normalization: NormalizationConfig;
+  cursor?: CursorConfig;
+}
+
+export function buildInitScript(config: NormalizationConfig | BuildInitScriptOptions): string {
+  const normConfig = "normalization" in config ? config.normalization : config;
+  const cursorConfig = "normalization" in config ? config.cursor : undefined;
+
+  const css = buildNormalizationCSS(normConfig);
   const js = buildNormalizationJS();
+
+  const cursorCss = cursorConfig?.show ? buildCursorCSS(cursorConfig) : "";
+  const cursorJs = cursorConfig?.show ? buildCursorJS() : "";
+
+  const allCss = css + cursorCss;
+  const cssLiteral = JSON.stringify(allCss);
 
   return `
     (function() {
-      // Inject normalization CSS
-      const style = document.createElement('style');
+      // Inject normalization + cursor CSS
+      var style = document.createElement('style');
       style.setAttribute('data-dolly', 'normalization');
       style.id = 'dolly-normalization';
-      style.textContent = ${JSON.stringify(css)};
+      style.textContent = ${cssLiteral};
       (document.head || document.documentElement).appendChild(style);
 
       ${js}
+      ${cursorJs}
     })();
   `;
 }
