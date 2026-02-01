@@ -27,11 +27,12 @@ export interface RecordingData {
   postProduction: {
     cursor: {
       enabled: boolean;
-      style: string;
+      style: "pointer" | "pointer-alt" | "hand" | "dot";
       size: number;
       color: string;
       opacity: number;
       clickEffect: "scale" | "none";
+      customSvg?: string;
     };
     audio: {
       clickSound: boolean;
@@ -40,8 +41,6 @@ export interface RecordingData {
     };
   };
 }
-
-export type PreviewMode = "canvas" | "rendered";
 
 export type ExportStatus = "idle" | "exporting" | "done" | "error";
 
@@ -55,7 +54,6 @@ export interface StudioState {
   recording: RecordingData | null;
   loading: boolean;
   error: string | null;
-  previewMode: PreviewMode;
   exportStatus: ExportStatus;
   exportProgress: string;
   settingsChanged: boolean;
@@ -67,7 +65,6 @@ export type StudioAction =
   | { type: "LOAD_START" }
   | { type: "LOAD_SUCCESS"; recording: RecordingData }
   | { type: "LOAD_ERROR"; error: string }
-  | { type: "SET_PREVIEW_MODE"; mode: PreviewMode }
   | { type: "UPDATE_CURSOR_SETTINGS"; cursor: Partial<RecordingData["postProduction"]["cursor"]> }
   | { type: "UPDATE_AUDIO_SETTINGS"; audio: Partial<RecordingData["postProduction"]["audio"]> }
   | { type: "EXPORT_START" }

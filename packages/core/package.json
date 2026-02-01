@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./cursor": {
+      "types": "./dist/post-production/cursor.d.ts",
+      "default": "./dist/post-production/cursor.js"
     }
   },
   "scripts": {
@@ -21,11 +25,18 @@
     "playwright": "^1.49.0"
   },
   "peerDependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0"
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@napi-rs/canvas": "^0.1.0"
   },
   "peerDependenciesMeta": {
     "@ffmpeg-installer/ffmpeg": {
       "optional": true
+    },
+    "@napi-rs/canvas": {
+      "optional": true
     }
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.89"
   }
 }

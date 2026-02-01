@@ -1,5 +1,5 @@
 export const DEFAULTS = {
-  fps: 25,
+  fps: 30,
   browser: "chromium" as const,
   outputDir: ".dolly",
   outputName: "demo",

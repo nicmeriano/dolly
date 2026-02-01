@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from "react";
 import { useStudio } from "../context/StudioContext";
-import { savePostProduction, triggerExport, triggerRender } from "../lib/api-client";
+import { savePostProduction, triggerExport } from "../lib/api-client";
 import type { RecordingData } from "../context/types";
 
 export function useStudioApi() {
@@ -40,20 +40,5 @@ export function useStudioApi() {
     }
   }, [dispatch]);
 
-  const startRender = useCallback(async () => {
-    dispatch({ type: "EXPORT_START" });
-    try {
-      await triggerRender((message) => {
-        dispatch({ type: "EXPORT_PROGRESS", message });
-      });
-      dispatch({ type: "EXPORT_DONE" });
-    } catch (err) {
-      dispatch({
-        type: "EXPORT_ERROR",
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }, [dispatch]);
-
-  return { saveSettings, startExport, startRender };
+  return { saveSettings, startExport };
 }

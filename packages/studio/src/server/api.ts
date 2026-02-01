@@ -1,8 +1,8 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createReadStream, statSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 // Resolve click.wav from @dolly/core assets for canvas preview audio
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -149,30 +149,6 @@ export function createApiMiddleware(options: ApiOptions) {
           send({ message: "Starting export..." });
           const { runExport } = await import("./ffmpeg-export.js");
           const result = await runExport(recordingDir, (msg) => send({ message: msg }));
-          send({ done: true, outputPath: result.outputPath });
-        } catch (err) {
-          send({ error: err instanceof Error ? err.message : String(err) });
-        }
-        res.end();
-        return;
-      }
-
-      // POST /api/render — trigger rendered preview
-      if (req.method === "POST" && pathname === "/api/render") {
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-        });
-
-        const send = (data: object) => {
-          res.write(`data: ${JSON.stringify(data)}\n\n`);
-        };
-
-        try {
-          send({ message: "Rendering preview..." });
-          const { runExport } = await import("./ffmpeg-export.js");
-          const result = await runExport(recordingDir, (msg) => send({ message: msg }), "rendered-preview.mp4");
           send({ done: true, outputPath: result.outputPath });
         } catch (err) {
           send({ error: err instanceof Error ? err.message : String(err) });

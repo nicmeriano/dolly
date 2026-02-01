@@ -2,7 +2,8 @@ import { z } from "zod";
 
 export const PostProductionCursorSchema = z.object({
   enabled: z.boolean().default(true),
-  style: z.literal("dot").default("dot"),
+  style: z.enum(["pointer", "pointer-alt", "hand", "dot"]).default("pointer"),
+  customSvg: z.string().optional(),
   size: z.number().int().min(4).max(64).default(20),
   color: z.string().default("#000000"),
   opacity: z.number().min(0).max(1).default(0.8),

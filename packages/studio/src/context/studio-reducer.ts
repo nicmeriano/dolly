@@ -4,7 +4,6 @@ export const initialState: StudioState = {
   recording: null,
   loading: true,
   error: null,
-  previewMode: "canvas",
   exportStatus: "idle",
   exportProgress: "",
   settingsChanged: false,
@@ -34,9 +33,6 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
 
     case "LOAD_ERROR":
       return { ...state, loading: false, error: action.error };
-
-    case "SET_PREVIEW_MODE":
-      return { ...state, previewMode: action.mode };
 
     case "UPDATE_CURSOR_SETTINGS":
       if (!state.recording) return state;

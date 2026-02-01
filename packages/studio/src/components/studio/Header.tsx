@@ -4,8 +4,8 @@ import { getFileUrl } from "../../lib/api-client";
 import { Button } from "../ui/button";
 
 export function Header() {
-  const { state, dispatch } = useStudio();
-  const { startExport, startRender } = useStudioApi();
+  const { state } = useStudio();
+  const { startExport } = useStudioApi();
 
   const videoFile = state.recording?.manifest.video ?? "output.mp4";
   const canDownload = state.exportStatus === "done" || state.exportVersion > 0;
@@ -22,28 +22,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
-          <Button
-            variant={state.previewMode === "canvas" ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => dispatch({ type: "SET_PREVIEW_MODE", mode: "canvas" })}
-          >
-            Canvas
-          </Button>
-          <Button
-            variant={state.previewMode === "rendered" ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => {
-              dispatch({ type: "SET_PREVIEW_MODE", mode: "rendered" });
-              if (state.settingsChanged) {
-                startRender();
-              }
-            }}
-          >
-            Rendered
-          </Button>
-        </div>
-
         <Button
           size="sm"
           onClick={startExport}

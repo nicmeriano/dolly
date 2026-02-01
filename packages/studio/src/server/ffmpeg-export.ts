@@ -25,7 +25,7 @@ export async function runExport(
   const rawVideoPath = path.join(recordingDir, "raw.webm");
   const outputPath = path.join(recordingDir, outputFilename);
 
-  onProgress("Running ffmpeg post-production...");
+  onProgress("Rendering cursor overlay frames...");
 
   await postProduce({
     rawVideoPath,
@@ -33,6 +33,11 @@ export async function runExport(
     postProdConfig,
     outputPath,
     fps: keyframesFile.fps,
+    onProgress: (frame, totalFrames) => {
+      if (frame % 30 === 0 || frame === totalFrames) {
+        onProgress(`Rendering frame ${frame}/${totalFrames}...`);
+      }
+    },
   });
 
   onProgress("Export complete");

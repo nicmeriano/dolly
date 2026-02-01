@@ -1,6 +1,5 @@
 import { useStudio } from "../../context/StudioContext";
 import { CanvasPreview } from "./CanvasPreview";
-import { RenderedPreview } from "./RenderedPreview";
 import { PlaybackControls } from "./PlaybackControls";
 import { useVideoPlayer } from "../../hooks/useVideoPlayer";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
@@ -17,11 +16,7 @@ export function PreviewArea() {
   return (
     <div className="flex flex-col h-full gap-2">
       <div className="flex-1 flex items-center justify-center overflow-hidden rounded-lg bg-black/50">
-        {state.previewMode === "canvas" ? (
-          <CanvasPreview videoRef={player.videoRef} onLoaded={player.onVideoLoaded} onEnded={player.onVideoEnded} />
-        ) : (
-          <RenderedPreview onLoaded={player.onVideoLoaded} onEnded={player.onVideoEnded} />
-        )}
+        <CanvasPreview videoRef={player.videoRef} onLoaded={player.onVideoLoaded} onEnded={player.onVideoEnded} />
       </div>
       <PlaybackControls
         togglePlay={player.togglePlay}

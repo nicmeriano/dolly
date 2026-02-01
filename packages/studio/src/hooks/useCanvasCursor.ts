@@ -1,51 +1,56 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { useStudio } from "../context/StudioContext";
-import { interpolateCursor } from "../lib/cursor-interpolation";
+import { renderCursorFrame, getCursorShape } from "@dolly/core/cursor";
+import type { CursorRendererConfig, CursorRendererEnv } from "@dolly/core/cursor";
+
+const env: CursorRendererEnv = { Path2D };
 
 export function useCanvasCursor(videoRef: React.RefObject<HTMLVideoElement | null>) {
   const { state } = useStudio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
 
-  useEffect(() => {
+  const rendererConfig = useMemo((): CursorRendererConfig | null => {
     const recording = state.recording;
+    if (!recording) return null;
 
+    const { cursor } = recording.postProduction;
+    if (!cursor.enabled || recording.keyframes.keyframes.length === 0) return null;
+
+    return {
+      cursor,
+      keyframes: recording.keyframes.keyframes,
+      shape: getCursorShape(cursor.style),
+      clickDurationMs: 100,
+    };
+  }, [
+    state.recording?.postProduction.cursor,
+    state.recording?.keyframes.keyframes,
+  ]);
+
+  useEffect(() => {
     function draw() {
       rafRef.current = requestAnimationFrame(draw);
 
       const canvas = canvasRef.current;
       const video = videoRef.current;
-      if (!canvas || !video || !recording) return;
+      if (!canvas || !video) return;
 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const { cursor } = recording.postProduction;
-      const { keyframes } = recording.keyframes;
-      if (!cursor.enabled || keyframes.length === 0) return;
+      if (!rendererConfig) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
 
       const timeMs = video.currentTime * 1000;
-      const pos = interpolateCursor(keyframes, timeMs);
-      if (!pos) return;
-
-      const drawRadius = pos.clicking && cursor.clickEffect === "scale"
-        ? (cursor.size * 0.75) / 2
-        : cursor.size / 2;
-
-      ctx.save();
-      ctx.globalAlpha = cursor.opacity;
-      ctx.fillStyle = cursor.color;
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, drawRadius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      renderCursorFrame(ctx, env, rendererConfig, timeMs, canvas.width, canvas.height);
     }
 
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [state.recording, videoRef]);
+  }, [rendererConfig, videoRef]);
 
   // Sync canvas dimensions to viewport
   useEffect(() => {

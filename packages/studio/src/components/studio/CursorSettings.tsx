@@ -27,6 +27,18 @@ export function CursorSettings() {
 
       {cursor.enabled && (
         <>
+          <Select
+            label="Style"
+            value={cursor.style}
+            onChange={(e) => updateCursor({ style: e.target.value as "pointer" | "pointer-alt" | "hand" | "dot" })}
+            options={[
+              { value: "pointer", label: "Pointer" },
+              { value: "pointer-alt", label: "Pointer Alt" },
+              { value: "hand", label: "Hand" },
+              { value: "dot", label: "Dot" },
+            ]}
+          />
+
           <Slider
             label="Size"
             displayValue={`${cursor.size}px`}

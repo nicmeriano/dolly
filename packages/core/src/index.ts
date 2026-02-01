@@ -32,17 +32,21 @@ export {
 
 export {
   postProduce,
-  generateCursorImage,
-  buildFilterComplex,
-  buildOverlayXExpr,
-  buildOverlayYExpr,
-  buildClickExpr,
-  keyframesToSegments,
+  renderCursorFrame,
+  CURSOR_SHAPES,
+  getCursorShape,
+  parseSvgCursor,
+  interpolateCursor,
+  findKeyframeIndex,
+  buildAudioFilters,
 } from "./post-production/index.js";
 export type {
   PostProductionOptions,
   PostProductionResult,
-  CursorImageOptions,
-  KeyframeSegment,
-  FilterComplexResult,
+  CursorRendererConfig,
+  CursorRendererEnv,
+  CursorShape,
+  CursorShapePath,
+  CursorPosition,
+  AudioFilterResult,
 } from "./post-production/index.js";

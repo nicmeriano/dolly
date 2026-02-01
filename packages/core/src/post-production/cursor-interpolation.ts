@@ -1,15 +1,10 @@
-interface Keyframe {
-  x: number;
-  y: number;
-  timestamp: number;
-  type: "move" | "click";
-}
+import type { CursorKeyframe } from "@dolly/schema";
 
 /**
  * Binary search for the keyframe segment containing the given time (in ms).
  * Returns the index of the last keyframe <= time.
  */
-export function findKeyframeIndex(keyframes: Keyframe[], timeMs: number): number {
+export function findKeyframeIndex(keyframes: CursorKeyframe[], timeMs: number): number {
   if (keyframes.length === 0) return -1;
   if (timeMs <= keyframes[0].timestamp) return 0;
   if (timeMs >= keyframes[keyframes.length - 1].timestamp) return keyframes.length - 1;
@@ -40,7 +35,7 @@ export interface CursorPosition {
  * Returns null if cursor should be hidden (before first keyframe).
  */
 export function interpolateCursor(
-  keyframes: Keyframe[],
+  keyframes: CursorKeyframe[],
   timeMs: number,
   clickDurationMs: number = 100,
 ): CursorPosition | null {
@@ -78,7 +73,7 @@ export function interpolateCursor(
 }
 
 function isClickActive(
-  keyframes: Keyframe[],
+  keyframes: CursorKeyframe[],
   timeMs: number,
   clickDurationMs: number,
 ): boolean {
@@ -87,7 +82,6 @@ function isClickActive(
     if (timeMs >= kf.timestamp && timeMs <= kf.timestamp + clickDurationMs) {
       return true;
     }
-    // Keyframes are sorted by time — skip past ones
     if (kf.timestamp > timeMs + clickDurationMs) break;
   }
   return false;
