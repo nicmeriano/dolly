@@ -2,11 +2,14 @@ import type { Page } from "playwright";
 import type { Step } from "@dolly/schema";
 import { StepError } from "./errors.js";
 import { resolveUrl } from "./url.js";
+import { TypedEmitter } from "./events.js";
 
 export interface StepExecutorOptions {
   baseUrl: string;
   fast?: boolean; // skip pauses in replay mode
   showCursor?: boolean; // position fake cursor before interactions
+  events?: TypedEmitter;
+  actionId?: string;
 }
 
 export async function executeStep(
@@ -20,7 +23,7 @@ export async function executeStep(
   }
 
   try {
-    await executeStepAction(page, step, options);
+    await executeStepAction(page, step, stepIndex, options);
   } catch (err) {
     throw new StepError(
       stepIndex,
@@ -36,59 +39,71 @@ export async function executeStep(
 }
 
 /**
- * Move the fake cursor element to the center of a target element.
- * Resolves the element's bounding box and sets the cursor position
- * via page.evaluate(), then waits for the CSS transition to render
- * in video frames.
+ * Resolve element bounding box center and emit cursor:move event.
+ * Returns the computed position, or null if the element wasn't found.
  */
 async function moveCursorTo(
   page: Page,
   selector: string,
-  fast?: boolean,
-): Promise<void> {
+  stepIndex: number,
+  options: StepExecutorOptions,
+): Promise<{ x: number; y: number } | null> {
   const locator = page.locator(selector);
   const box = await locator.boundingBox().catch(() => null);
-  if (!box) return;
+  if (!box) return null;
 
   const x = Math.round(box.x + box.width / 2);
   const y = Math.round(box.y + box.height / 2);
 
-  await page.evaluate(({ cx, cy }) => {
-    const el = document.querySelector('.dolly-cursor') as HTMLElement | null;
-    if (el) {
-      el.style.left = cx + 'px';
-      el.style.top = cy + 'px';
-    }
-  }, { cx: x, cy: y });
-
-  // Wait for CSS transition (150ms) to complete so video captures the motion
-  if (!fast) {
-    await page.waitForTimeout(200);
+  if (options.events && options.actionId) {
+    options.events.emit("cursor:move", {
+      x,
+      y,
+      actionId: options.actionId,
+      stepIndex,
+    });
   }
+
+  // Small delay for natural action pacing
+  if (!options.fast) {
+    await page.waitForTimeout(100);
+  }
+
+  return { x, y };
 }
 
 async function executeStepAction(
   page: Page,
   step: Step,
+  stepIndex: number,
   options: StepExecutorOptions,
 ): Promise<void> {
   switch (step.type) {
     case "click": {
-      if (options.showCursor) {
-        await moveCursorTo(page, step.selector, options.fast);
-      }
+      const pos = options.showCursor
+        ? await moveCursorTo(page, step.selector, stepIndex, options)
+        : null;
       const locator = page.locator(step.selector);
       await locator.click({
         button: step.button,
         clickCount: step.clickCount,
         position: step.position,
       });
+      // Emit click event after click action
+      if (options.events && options.actionId && pos) {
+        options.events.emit("cursor:click", {
+          x: pos.x,
+          y: pos.y,
+          actionId: options.actionId,
+          stepIndex,
+        });
+      }
       break;
     }
 
     case "type": {
       if (options.showCursor) {
-        await moveCursorTo(page, step.selector, options.fast);
+        await moveCursorTo(page, step.selector, stepIndex, options);
       }
       const locator = page.locator(step.selector);
       if (step.clearBefore) {
@@ -109,7 +124,7 @@ async function executeStepAction(
         await page.mouse.wheel(deltaX, deltaY);
       } else {
         if (options.showCursor) {
-          await moveCursorTo(page, step.target, options.fast);
+          await moveCursorTo(page, step.target, stepIndex, options);
         }
         await page.locator(step.target).evaluate(
           (el, { dx, dy }) => {
@@ -127,7 +142,7 @@ async function executeStepAction(
 
     case "hover": {
       if (options.showCursor) {
-        await moveCursorTo(page, step.selector, options.fast);
+        await moveCursorTo(page, step.selector, stepIndex, options);
       }
       const locator = page.locator(step.selector);
       await locator.hover();
@@ -155,7 +170,7 @@ async function executeStepAction(
 
     case "select": {
       if (options.showCursor) {
-        await moveCursorTo(page, step.selector, options.fast);
+        await moveCursorTo(page, step.selector, stepIndex, options);
       }
       const locator = page.locator(step.selector);
       await locator.selectOption(step.value);

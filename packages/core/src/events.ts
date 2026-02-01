@@ -12,8 +12,14 @@ export interface RunEvents {
   "step:complete": { actionId: string; stepIndex: number; stepType: string };
   "step:retry": { actionId: string; stepIndex: number; attempt: number; error: Error };
 
+  "cursor:move": { x: number; y: number; actionId: string; stepIndex: number };
+  "cursor:click": { x: number; y: number; actionId: string; stepIndex: number };
+
   "convert:start": { inputPath: string };
   "convert:complete": { outputPath: string };
+
+  "postprod:start": {};
+  "postprod:complete": { outputPath: string };
 }
 
 export type RunEventName = keyof RunEvents;

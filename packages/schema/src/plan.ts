@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PlanConfigSchema } from "./config.js";
 import { StepSchema } from "./steps.js";
+import { PostProductionConfigSchema } from "./post-production.js";
 import { DEFAULTS } from "./defaults.js";
 
 export const PartialRetryConfigSchema = z.object({
@@ -28,6 +29,7 @@ export const PlanSchema = z.object({
   name: z.string().min(1),
   config: PlanConfigSchema,
   actions: z.array(ActionSchema).min(1),
+  postProduction: PostProductionConfigSchema.optional(),
 });
 
 export type Plan = z.infer<typeof PlanSchema>;

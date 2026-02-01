@@ -1,10 +1,11 @@
 import * as path from "node:path";
 import * as fs from "node:fs/promises";
 import { chromium } from "playwright";
-import type { Plan, RecordingManifest } from "@dolly/schema";
+import type { Plan, RecordingManifest, CursorKeyframe, CursorKeyframesFile, PostProductionConfig } from "@dolly/schema";
+import { PostProductionConfigSchema } from "@dolly/schema";
 import { executeAction } from "./action-recorder.js";
 import { buildInitScript } from "./normalization.js";
-import { convertToMp4 } from "./stitcher.js";
+import { postProduce } from "./post-production/export.js";
 import { writeManifest } from "./manifest.js";
 import { TypedEmitter } from "./events.js";
 import { AbortError } from "./errors.js";
@@ -55,6 +56,20 @@ export interface TestHandle {
   abort: () => void;
 }
 
+function generateRecordingDirName(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate()),
+    "-",
+    pad(now.getHours()),
+    pad(now.getMinutes()),
+    pad(now.getSeconds()),
+  ].join("");
+}
+
 export function run(options: RunOptions): RunHandle {
   const events = new TypedEmitter();
   const abortController = new AbortController();
@@ -96,12 +111,32 @@ async function executeRun(
 ): Promise<RunResult> {
   const { plan, headed = false } = options;
   const config = plan.config;
-  const outputDir = path.resolve(options.outputDir ?? config.outputDir);
-  const outputFormat = options.format ?? config.outputFormat;
+  const baseOutputDir = path.resolve(options.outputDir ?? config.outputDir);
 
-  await fs.mkdir(outputDir, { recursive: true });
+  // Create timestamped recording directory
+  const recordingDirName = generateRecordingDirName();
+  const recordingDir = path.join(baseOutputDir, "recordings", recordingDirName);
+  await fs.mkdir(recordingDir, { recursive: true });
 
-  const videoDir = path.join(outputDir, "_tmp_video");
+  // Copy plan.json into recording directory
+  await fs.writeFile(
+    path.join(recordingDir, "plan.json"),
+    JSON.stringify(plan, null, 2),
+    "utf-8",
+  );
+
+  // Write default post-production config
+  const postProdConfig: PostProductionConfig = plan.postProduction
+    ? PostProductionConfigSchema.parse(plan.postProduction)
+    : PostProductionConfigSchema.parse({});
+
+  await fs.writeFile(
+    path.join(recordingDir, "post-production.json"),
+    JSON.stringify(postProdConfig, null, 2),
+    "utf-8",
+  );
+
+  const videoDir = path.join(recordingDir, "_tmp_video");
   await fs.mkdir(videoDir, { recursive: true });
 
   const manifest: RecordingManifest = {
@@ -109,6 +144,8 @@ async function executeRun(
     startedAt: new Date().toISOString(),
     completedAt: "",
     video: null,
+    rawVideo: null,
+    recordingDir,
     durationSeconds: 0,
     actions: [],
   };
@@ -117,6 +154,7 @@ async function executeRun(
 
   const context = await browser.newContext({
     viewport: config.viewport,
+    deviceScaleFactor: 1,
     locale: config.normalization.locale,
     timezoneId: config.normalization.timezone,
     colorScheme: config.normalization.colorScheme,
@@ -128,12 +166,37 @@ async function executeRun(
   });
 
   const page = await context.newPage();
+
+  // No cursor CSS/JS injection during recording — cursor is added in post-production
   await page.addInitScript({ content: buildInitScript({
     normalization: config.normalization,
-    cursor: config.cursor,
   }) });
 
   const startTime = Date.now();
+  const cursorKeyframes: CursorKeyframe[] = [];
+
+  // Collect cursor events
+  events.on("cursor:move", (data) => {
+    cursorKeyframes.push({
+      x: data.x,
+      y: data.y,
+      timestamp: Date.now() - startTime,
+      type: "move",
+      actionId: data.actionId,
+      stepIndex: data.stepIndex,
+    });
+  });
+
+  events.on("cursor:click", (data) => {
+    cursorKeyframes.push({
+      x: data.x,
+      y: data.y,
+      timestamp: Date.now() - startTime,
+      type: "click",
+      actionId: data.actionId,
+      stepIndex: data.stepIndex,
+    });
+  });
 
   events.emit("run:start", {
     planName: plan.name,
@@ -174,42 +237,60 @@ async function executeRun(
       throw new Error("No video file produced by Playwright");
     }
 
-    // Move raw webm to output dir
-    const rawVideoName = `${plan.name}.webm`;
-    const rawVideoPath = path.join(outputDir, rawVideoName);
+    // Move raw webm to recording directory
+    const rawVideoName = "raw.webm";
+    const rawVideoPath = path.join(recordingDir, rawVideoName);
     await fs.rename(videoPath, rawVideoPath);
-    manifest.video = rawVideoName;
+    manifest.rawVideo = rawVideoName;
 
-    // Convert to mp4 if requested
-    if (outputFormat === "mp4") {
-      events.emit("convert:start", { inputPath: rawVideoPath });
+    // Write cursor keyframes
+    const keyframesFile: CursorKeyframesFile = {
+      version: 1,
+      fps: config.fps,
+      viewport: { w: config.viewport.width, h: config.viewport.height },
+      recordingStartedAt: manifest.startedAt,
+      durationMs,
+      keyframes: cursorKeyframes,
+    };
 
-      const mp4Path = await convertToMp4({
-        inputPath: rawVideoPath,
-        fps: config.fps,
-        signal,
-      });
+    await fs.writeFile(
+      path.join(recordingDir, "cursor-keyframes.json"),
+      JSON.stringify(keyframesFile, null, 2),
+      "utf-8",
+    );
 
-      manifest.video = path.basename(mp4Path);
-      events.emit("convert:complete", { outputPath: mp4Path });
-    }
+    // Post-production: overlay cursor + click sounds
+    events.emit("postprod:start", {});
+
+    const outputPath = path.join(recordingDir, "output.mp4");
+    await postProduce({
+      rawVideoPath,
+      keyframesFile,
+      postProdConfig,
+      outputPath,
+      fps: config.fps,
+      signal,
+    });
+
+    manifest.video = "output.mp4";
+    events.emit("postprod:complete", { outputPath });
 
     manifest.completedAt = new Date().toISOString();
-    await writeManifest(outputDir, manifest);
+    await writeManifest(recordingDir, manifest);
 
     events.emit("run:complete", {
       planName: plan.name,
       durationMs,
     });
 
-    return { manifest, outputDir };
+    return { manifest, outputDir: recordingDir };
   } catch (err) {
     // Ensure context is closed on failure
     await context.close().catch(() => {});
 
     manifest.completedAt = new Date().toISOString();
     manifest.durationSeconds = (Date.now() - startTime) / 1000;
-    await writeManifest(outputDir, manifest).catch(() => {});
+    await writeManifest(recordingDir, manifest).catch(() => {});
 
     throw err;
   } finally {

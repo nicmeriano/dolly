@@ -74,9 +74,10 @@ export const recordCommand = new Command("record")
       const result = await handle.result;
 
       if (!opts.json) {
-        console.log(chalk.dim(`  Manifest: ${path.join(result.outputDir, "manifest.json")}`));
+        console.log(chalk.dim(`  Recording: ${result.outputDir}`));
+        console.log(chalk.dim(`  Manifest:  ${path.join(result.outputDir, "manifest.json")}`));
         if (result.manifest.video) {
-          console.log(chalk.dim(`  Video: ${path.join(result.outputDir, result.manifest.video)}`));
+          console.log(chalk.dim(`  Video:     ${path.join(result.outputDir, result.manifest.video)}`));
         }
       }
     } catch (err) {

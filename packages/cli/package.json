@@ -15,6 +15,7 @@
   "dependencies": {
     "@dolly/core": "workspace:*",
     "@dolly/schema": "workspace:*",
+    "@dolly/studio": "workspace:*",
     "chalk": "^5.3.0",
     "playwright": "^1.49.0",
     "commander": "^12.1.0",

@@ -49,4 +49,24 @@ export {
 } from "./manifest.js";
 export type { RecordingManifest, ActionRecord } from "./manifest.js";
 
+export {
+  PostProductionConfigSchema,
+  PostProductionCursorSchema,
+  PostProductionAudioSchema,
+} from "./post-production.js";
+export type {
+  PostProductionConfig,
+  PostProductionCursor,
+  PostProductionAudio,
+} from "./post-production.js";
+
+export {
+  CursorKeyframeSchema,
+  CursorKeyframesFileSchema,
+} from "./cursor-keyframes.js";
+export type {
+  CursorKeyframe,
+  CursorKeyframesFile,
+} from "./cursor-keyframes.js";
+
 export { DEFAULTS } from "./defaults.js";

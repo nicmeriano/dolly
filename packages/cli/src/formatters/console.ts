@@ -67,6 +67,17 @@ export function attachConsoleFormatter(
     spinner?.succeed(chalk.green(`Converted → ${data.outputPath}`));
   });
 
+  events.on("postprod:start", () => {
+    spinner = ora({
+      text: chalk.white("Post-production (cursor overlay + audio)..."),
+      prefixText: "  ",
+    }).start();
+  });
+
+  events.on("postprod:complete", (data) => {
+    spinner?.succeed(chalk.green(`Exported → ${data.outputPath}`));
+  });
+
   events.on("run:complete", (data) => {
     console.log(
       chalk.bold.green(`\n  Done in ${(data.durationMs / 1000).toFixed(1)}s\n`),
@@ -90,6 +101,8 @@ function attachJsonFormatter(events: TypedEmitter): void {
     "step:retry",
     "convert:start",
     "convert:complete",
+    "postprod:start",
+    "postprod:complete",
   ];
 
   for (const name of eventNames) {

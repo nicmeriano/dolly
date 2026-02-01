@@ -6,6 +6,7 @@ import { stitchCommand } from "./commands/stitch.js";
 import { validateCommand } from "./commands/validate.js";
 import { inspectCommand } from "./commands/inspect.js";
 import { testCommand } from "./commands/test.js";
+import { studioCommand } from "./commands/studio.js";
 
 const program = new Command()
   .name("dolly")
@@ -17,5 +18,6 @@ program.addCommand(stitchCommand);
 program.addCommand(validateCommand);
 program.addCommand(inspectCommand);
 program.addCommand(testCommand);
+program.addCommand(studioCommand);
 
 program.parse();

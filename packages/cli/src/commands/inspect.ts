@@ -6,9 +6,29 @@ import { readManifest } from "@dolly/core";
 
 export const inspectCommand = new Command("inspect")
   .description("Inspect a recording manifest")
-  .argument("[dir]", "Directory containing manifest.json", ".dolly")
-  .action(async (dir: string) => {
-    const outputDir = path.resolve(dir);
+  .argument("[dir]", "Recording directory or .dolly base directory")
+  .action(async (dir?: string) => {
+    let outputDir: string;
+
+    if (dir) {
+      outputDir = path.resolve(dir);
+    } else {
+      // Default: find most recent recording in .dolly/recordings/
+      const recordingsBase = path.resolve(".dolly", "recordings");
+      try {
+        const entries = await fs.readdir(recordingsBase);
+        entries.sort().reverse();
+        if (entries.length > 0) {
+          outputDir = path.join(recordingsBase, entries[0]);
+        } else {
+          // Fall back to .dolly for backwards compatibility
+          outputDir = path.resolve(".dolly");
+        }
+      } catch {
+        // Fall back to .dolly for backwards compatibility
+        outputDir = path.resolve(".dolly");
+      }
+    }
 
     let manifest;
     try {
@@ -19,10 +39,23 @@ export const inspectCommand = new Command("inspect")
     }
 
     console.log(chalk.bold.cyan(`\n  Recording: ${manifest.planName}\n`));
+    if (manifest.recordingDir) {
+      console.log(chalk.dim(`  Directory: ${manifest.recordingDir}`));
+    }
     console.log(chalk.dim(`  Started:   ${manifest.startedAt}`));
     console.log(chalk.dim(`  Completed: ${manifest.completedAt || "(incomplete)"}`));
     console.log(chalk.dim(`  Duration:  ${manifest.durationSeconds.toFixed(1)}s`));
     console.log(chalk.dim(`  Actions:   ${manifest.actions.length}`));
+
+    if (manifest.rawVideo) {
+      const rawVideoPath = path.join(outputDir, manifest.rawVideo);
+      let size = 0;
+      try {
+        const stat = await fs.stat(rawVideoPath);
+        size = stat.size;
+      } catch {}
+      console.log(chalk.dim(`  Raw:       ${manifest.rawVideo} (${formatBytes(size)})`));
+    }
 
     if (manifest.video) {
       const videoPath = path.join(outputDir, manifest.video);
@@ -30,9 +63,7 @@ export const inspectCommand = new Command("inspect")
       try {
         const stat = await fs.stat(videoPath);
         size = stat.size;
-      } catch {
-        // File may not exist
-      }
+      } catch {}
       console.log(
         chalk.dim(`  Video:     ${manifest.video} (${formatBytes(size)})`),
       );

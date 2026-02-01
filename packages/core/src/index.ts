@@ -29,3 +29,20 @@ export {
   FfmpegError,
   AbortError,
 } from "./errors.js";
+
+export {
+  postProduce,
+  generateCursorImage,
+  buildFilterComplex,
+  buildOverlayXExpr,
+  buildOverlayYExpr,
+  buildClickExpr,
+  keyframesToSegments,
+} from "./post-production/index.js";
+export type {
+  PostProductionOptions,
+  PostProductionResult,
+  CursorImageOptions,
+  KeyframeSegment,
+  FilterComplexResult,
+} from "./post-production/index.js";

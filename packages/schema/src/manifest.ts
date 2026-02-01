@@ -12,6 +12,8 @@ export const RecordingManifestSchema = z.object({
   startedAt: z.string(),
   completedAt: z.string(),
   video: z.string().nullable(),
+  rawVideo: z.string().nullable().optional(),
+  recordingDir: z.string().optional(),
   durationSeconds: z.number(),
   actions: z.array(ActionRecordSchema),
 });

@@ -69,7 +69,13 @@ export async function executeAction(
 
     for (let attempt = 0; attempt <= stepRetries; attempt++) {
       try {
-        await executeStep(page, step, i, { baseUrl, fast, showCursor });
+        await executeStep(page, step, i, {
+          baseUrl,
+          fast,
+          showCursor,
+          events,
+          actionId: action.id,
+        });
         succeeded = true;
         break;
       } catch (err) {
