@@ -19,6 +19,9 @@ export type { BuildInitScriptOptions } from "./normalization.js";
 
 export { resolveUrl } from "./url.js";
 
+export { ScreencastRecorder } from "./screencast-recorder.js";
+export type { ScreencastRecorderOptions } from "./screencast-recorder.js";
+
 export { TypedEmitter } from "./events.js";
 export type { RunEvents, RunEventName } from "./events.js";
 

@@ -35,7 +35,7 @@ export const studioCommand = new Command("studio")
     }
 
     // Validate recording directory
-    const requiredFiles = ["manifest.json", "cursor-keyframes.json", "raw.webm"];
+    const requiredFiles = ["manifest.json", "cursor-keyframes.json"];
     const missing: string[] = [];
     for (const file of requiredFiles) {
       try {
@@ -43,6 +43,21 @@ export const studioCommand = new Command("studio")
       } catch {
         missing.push(file);
       }
+    }
+
+    // Check for raw video (either raw.mp4 or raw.webm for backward compat)
+    let hasRawVideo = false;
+    for (const name of ["raw.mp4", "raw.webm"]) {
+      try {
+        await fs.access(path.join(recordingDir, name));
+        hasRawVideo = true;
+        break;
+      } catch {
+        // try next
+      }
+    }
+    if (!hasRawVideo) {
+      missing.push("raw.mp4 (or raw.webm)");
     }
 
     if (missing.length > 0) {

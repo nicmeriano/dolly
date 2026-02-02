@@ -18,12 +18,13 @@ export function CanvasPreview({ videoRef, onLoaded, onEnded }: CanvasPreviewProp
   if (!state.recording) return null;
 
   const { w, h } = state.recording.keyframes.viewport;
+  const rawVideo = state.recording.manifest.rawVideo ?? "raw.webm";
 
   return (
     <div className="relative w-full" style={{ aspectRatio: `${w}/${h}` }}>
       <video
         ref={videoRef}
-        src={getFileUrl("raw.webm")}
+        src={getFileUrl(rawVideo)}
         onLoadedMetadata={onLoaded}
         onEnded={onEnded}
         className="absolute inset-0 w-full h-full"

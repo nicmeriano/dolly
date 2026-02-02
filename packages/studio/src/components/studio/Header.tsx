@@ -5,10 +5,15 @@ import { Button } from "../ui/button";
 
 export function Header() {
   const { state } = useStudio();
-  const { startExport } = useStudioApi();
+  const { exportAndDownload } = useStudioApi();
 
   const videoFile = state.recording?.manifest.video ?? "output.mp4";
-  const canDownload = state.exportStatus === "done" || state.exportVersion > 0;
+  const isExporting = state.exportStatus === "exporting";
+
+  const handleDownload = () => {
+    const url = `${getFileUrl(videoFile)}?v=${state.exportVersion + 1}`;
+    exportAndDownload(url, videoFile);
+  };
 
   return (
     <header className="col-span-2 flex items-center justify-between border-b border-border px-4 py-2">
@@ -21,29 +26,13 @@ export function Header() {
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={startExport}
-          disabled={state.exportStatus === "exporting"}
-        >
-          {state.exportStatus === "exporting" ? "Exporting..." : "Export"}
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          asChild
-          disabled={!canDownload}
-        >
-          <a
-            href={`${getFileUrl(videoFile)}?v=${state.exportVersion}`}
-            download={videoFile}
-          >
-            Download
-          </a>
-        </Button>
-      </div>
+      <Button
+        size="sm"
+        onClick={handleDownload}
+        disabled={isExporting}
+      >
+        {isExporting ? "Exporting..." : "Export"}
+      </Button>
     </header>
   );
 }

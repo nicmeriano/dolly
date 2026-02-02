@@ -9,6 +9,7 @@ import { postProduce } from "./post-production/export.js";
 import { writeManifest } from "./manifest.js";
 import { TypedEmitter } from "./events.js";
 import { AbortError } from "./errors.js";
+import { ScreencastRecorder } from "./screencast-recorder.js";
 
 export interface RunOptions {
   plan: Plan;
@@ -136,9 +137,6 @@ async function executeRun(
     "utf-8",
   );
 
-  const videoDir = path.join(recordingDir, "_tmp_video");
-  await fs.mkdir(videoDir, { recursive: true });
-
   const manifest: RecordingManifest = {
     planName: plan.name,
     startedAt: new Date().toISOString(),
@@ -159,10 +157,6 @@ async function executeRun(
     timezoneId: config.normalization.timezone,
     colorScheme: config.normalization.colorScheme,
     reducedMotion: config.normalization.reducedMotion,
-    recordVideo: {
-      dir: videoDir,
-      size: config.viewport,
-    },
   });
 
   const page = await context.newPage();
@@ -172,7 +166,19 @@ async function executeRun(
     normalization: config.normalization,
   }) });
 
-  const startTime = Date.now();
+  // Start CDP screencast → ffmpeg pipeline for high-quality H.264 capture
+  const rawVideoName = "raw.mp4";
+  const rawVideoPath = path.join(recordingDir, rawVideoName);
+  const recorder = new ScreencastRecorder({
+    page,
+    outputPath: rawVideoPath,
+    fps: config.fps,
+    width: config.viewport.width,
+    height: config.viewport.height,
+  });
+  await recorder.start();
+
+  const startTime = recorder.startTimeMs;
   const cursorKeyframes: CursorKeyframe[] = [];
 
   // Collect cursor events
@@ -229,18 +235,9 @@ async function executeRun(
     const durationMs = Date.now() - startTime;
     manifest.durationSeconds = durationMs / 1000;
 
-    // Close context to finalize the video
-    const videoPath = await page.video()?.path();
+    // Stop the screencast recorder and finalize the raw video
+    await recorder.stop();
     await context.close();
-
-    if (!videoPath) {
-      throw new Error("No video file produced by Playwright");
-    }
-
-    // Move raw webm to recording directory
-    const rawVideoName = "raw.webm";
-    const rawVideoPath = path.join(recordingDir, rawVideoName);
-    await fs.rename(videoPath, rawVideoPath);
     manifest.rawVideo = rawVideoName;
 
     // Write cursor keyframes
@@ -285,7 +282,8 @@ async function executeRun(
 
     return { manifest, outputDir: recordingDir };
   } catch (err) {
-    // Ensure context is closed on failure
+    // Stop recorder and close context on failure
+    await recorder.stop().catch(() => {});
     await context.close().catch(() => {});
 
     manifest.completedAt = new Date().toISOString();
@@ -295,7 +293,6 @@ async function executeRun(
     throw err;
   } finally {
     await browser.close().catch(() => {});
-    await fs.rm(videoDir, { recursive: true, force: true }).catch(() => {});
   }
 }
 

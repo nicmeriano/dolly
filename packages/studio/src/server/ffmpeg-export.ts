@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { CursorKeyframesFile, PostProductionConfig } from "@dolly/schema";
+import type { CursorKeyframesFile, PostProductionConfig, RecordingManifest } from "@dolly/schema";
 import { postProduce } from "@dolly/core";
 
 export interface ExportResult {
@@ -14,15 +14,18 @@ export async function runExport(
 ): Promise<ExportResult> {
   onProgress("Reading recording data...");
 
-  const [keyframesRaw, postProdRaw] = await Promise.all([
+  const [keyframesRaw, postProdRaw, manifestRaw] = await Promise.all([
     fs.readFile(path.join(recordingDir, "cursor-keyframes.json"), "utf-8"),
     fs.readFile(path.join(recordingDir, "post-production.json"), "utf-8"),
+    fs.readFile(path.join(recordingDir, "manifest.json"), "utf-8"),
   ]);
 
   const keyframesFile: CursorKeyframesFile = JSON.parse(keyframesRaw);
   const postProdConfig: PostProductionConfig = JSON.parse(postProdRaw);
+  const manifest: RecordingManifest = JSON.parse(manifestRaw);
 
-  const rawVideoPath = path.join(recordingDir, "raw.webm");
+  const rawVideoName = manifest.rawVideo ?? "raw.webm";
+  const rawVideoPath = path.join(recordingDir, rawVideoName);
   const outputPath = path.join(recordingDir, outputFilename);
 
   onProgress("Rendering cursor overlay frames...");
