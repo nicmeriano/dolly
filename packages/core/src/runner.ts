@@ -213,6 +213,8 @@ async function executeRun(
     for (let i = 0; i < plan.actions.length; i++) {
       if (signal.aborted) throw new AbortError();
 
+      const actionStartMs = Date.now() - startTime;
+
       const result = await executeAction({
         page,
         context,
@@ -226,9 +228,13 @@ async function executeRun(
         showCursor: config.cursor.show,
       });
 
+      const actionEndMs = Date.now() - startTime;
+
       manifest.actions.push({
         actionId: plan.actions[i].id,
         retriesUsed: result.retriesUsed,
+        startMs: actionStartMs,
+        endMs: actionEndMs,
       });
     }
 

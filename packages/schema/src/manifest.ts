@@ -3,6 +3,8 @@ import { z } from "zod";
 export const ActionRecordSchema = z.object({
   actionId: z.string(),
   retriesUsed: z.number().int().min(0),
+  startMs: z.number().int().min(0),
+  endMs: z.number().int().min(0),
 });
 
 export type ActionRecord = z.infer<typeof ActionRecordSchema>;
