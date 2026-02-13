@@ -1,6 +1,6 @@
 {
   "name": "@nicmeriano/dolly",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for dolly — record cinematic product demos",
   "license": "UNLICENSED",
   "repository": {
@@ -13,7 +13,12 @@
     "dolly": "dist/index.js"
   },
   "main": "dist/index.js",
-  "files": ["dist", "skills", ".claude-plugin", "scripts"],
+  "files": [
+    "dist",
+    "skills",
+    ".claude-plugin",
+    "scripts"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",

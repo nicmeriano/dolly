@@ -1,6 +1,6 @@
 {
   "name": "@nicmeriano/dolly-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Execution engine for dolly — record cinematic product demos with Playwright",
   "license": "UNLICENSED",
   "repository": {
@@ -21,7 +21,10 @@
       "default": "./dist/post-production/cursor.js"
     }
   },
-  "files": ["dist", "assets"],
+  "files": [
+    "dist",
+    "assets"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
