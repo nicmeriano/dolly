@@ -1,5 +1,5 @@
 export const DEFAULTS = {
-  fps: 30,
+  fps: 60,
   browser: "chromium" as const,
   outputDir: ".dolly",
   outputName: "demo",
@@ -14,13 +14,13 @@ export const DEFAULTS = {
   normalization: {
     hideScrollbars: true,
     disableCursorBlink: true,
-    disableAnimations: true,
+    disableAnimations: false,
     forceConsistentFonts: true,
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     locale: "en-US",
     timezone: "America/New_York",
     colorScheme: "light" as const,
-    reducedMotion: "reduce" as const,
+    reducedMotion: "no-preference" as const,
     clearStorageBetweenActions: false,
   },
 
@@ -33,6 +33,7 @@ export const DEFAULTS = {
 
   step: {
     typeDelay: 50,
+    scrollDuration: 600,
   },
 
   action: {

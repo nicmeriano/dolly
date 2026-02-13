@@ -36,7 +36,8 @@ export const ScrollStepSchema = z.object({
   target: z.string().default("viewport"),
   direction: z.enum(["up", "down", "left", "right"]),
   amount: z.number().int().min(1),
-  duration: z.number().int().min(0).optional(),
+  /** Animation duration in ms. Defaults to 600ms for smooth scrolling. Set to 0 for instant. */
+  duration: z.number().int().min(0).default(DEFAULTS.step.scrollDuration),
 });
 
 export const HoverStepSchema = z.object({
