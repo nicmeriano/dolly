@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
+import { createInterface } from "node:readline";
 
 function run(cmd) {
   try {
@@ -20,9 +21,25 @@ function which(bin) {
   }
 }
 
+function prompt(question) {
+  return new Promise((resolve) => {
+    // If stdin isn't a TTY (CI, piped), skip the prompt
+    if (!process.stdin.isTTY) {
+      resolve(false);
+      return;
+    }
+
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.toLowerCase().startsWith("y"));
+    });
+  });
+}
+
 console.log("\n  Dolly — postinstall\n");
 
-// Install Playwright Chromium
+// 1. Install Playwright Chromium
 console.log("  Installing Playwright Chromium...");
 if (run("npx playwright install chromium")) {
   console.log("  ✓ Chromium installed\n");
@@ -30,12 +47,31 @@ if (run("npx playwright install chromium")) {
   console.warn("  ⚠ Failed to install Chromium. Run manually: npx playwright install chromium\n");
 }
 
-// Check ffmpeg
-if (which("ffmpeg")) {
-  console.log("  ✓ ffmpeg found\n");
+// 2. Check agent-browser (needed for /dolly skill to explore apps and generate plans)
+if (which("agent-browser")) {
+  console.log("  ✓ agent-browser found\n");
 } else {
-  console.warn("  ⚠ ffmpeg not found in PATH");
-  console.warn("    Install it: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)\n");
+  console.log("  ⚠ agent-browser not found");
+  console.log("    Dolly uses agent-browser to explore web apps and generate recording plans.\n");
+
+  const shouldInstall = await prompt("  Install agent-browser now? [Y/n] ");
+
+  if (shouldInstall) {
+    console.log("\n  Installing agent-browser...");
+    if (run("npm install -g agent-browser")) {
+      console.log("  ✓ agent-browser installed");
+      console.log("  Installing agent-browser browser...");
+      if (run("agent-browser install")) {
+        console.log("  ✓ agent-browser browser installed\n");
+      } else {
+        console.warn("  ⚠ Failed to install agent-browser browser. Run manually: agent-browser install\n");
+      }
+    } else {
+      console.warn("  ⚠ Failed to install agent-browser. Run manually: npm install -g agent-browser && agent-browser install\n");
+    }
+  } else {
+    console.log("\n  Skipped. Install later: npm install -g agent-browser && agent-browser install\n");
+  }
 }
 
 console.log("  ✓ Dolly installed successfully!\n");

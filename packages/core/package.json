@@ -28,17 +28,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@nicmeriano/dolly-schema": "workspace:*",
     "playwright": "^1.49.0"
   },
   "peerDependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@napi-rs/canvas": "^0.1.0"
   },
   "peerDependenciesMeta": {
-    "@ffmpeg-installer/ffmpeg": {
-      "optional": true
-    },
     "@napi-rs/canvas": {
       "optional": true
     }
