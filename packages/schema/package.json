@@ -2,7 +2,7 @@
   "name": "@nicmeriano/dolly-schema",
   "version": "0.1.0",
   "description": "Zod schemas and inferred TypeScript types for dolly plan files",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
     "url": "https://github.com/nicmeriano/dolly.git",

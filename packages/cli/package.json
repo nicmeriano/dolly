@@ -2,7 +2,7 @@
   "name": "@nicmeriano/dolly",
   "version": "0.1.0",
   "description": "CLI for dolly — record cinematic product demos",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
     "url": "https://github.com/nicmeriano/dolly.git",

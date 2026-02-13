@@ -2,7 +2,7 @@
   "name": "@nicmeriano/dolly-core",
   "version": "0.1.0",
   "description": "Execution engine for dolly — record cinematic product demos with Playwright",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
     "url": "https://github.com/nicmeriano/dolly.git",

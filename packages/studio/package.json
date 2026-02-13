@@ -2,7 +2,7 @@
   "name": "@nicmeriano/dolly-studio",
   "version": "0.1.0",
   "description": "Post-production studio UI for dolly recordings",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
     "url": "https://github.com/nicmeriano/dolly.git",
