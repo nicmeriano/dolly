@@ -2,7 +2,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
-import { validatePlan } from "@dolly/schema";
+import { validatePlan } from "@nicmeriano/dolly-schema";
 import { chromium } from "playwright";
 
 export const validateCommand = new Command("validate")

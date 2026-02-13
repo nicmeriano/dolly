@@ -1,4 +1,4 @@
-import type { CursorKeyframe } from "@dolly/schema";
+import type { CursorKeyframe } from "@nicmeriano/dolly-schema";
 
 export interface AudioFilterResult {
   filters: string[];

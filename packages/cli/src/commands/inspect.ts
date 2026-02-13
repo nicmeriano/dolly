@@ -2,7 +2,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
-import { readManifest } from "@dolly/core";
+import { readManifest } from "@nicmeriano/dolly-core";
 
 export const inspectCommand = new Command("inspect")
   .description("Inspect a recording manifest")

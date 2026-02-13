@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dolly",
+  "description": "Record cinematic product demo videos from web apps",
+  "owner": { "name": "nicmeriano" },
+  "plugins": [
+    {
+      "name": "dolly",
+      "description": "Record cinematic product demo videos using browser automation",
+      "source": "./",
+      "skills": ["./skills/dolly"],
+      "category": "development"
+    }
+  ]
+}

@@ -1,7 +1,13 @@
 {
-  "name": "@dolly/studio",
+  "name": "@nicmeriano/dolly-studio",
   "version": "0.1.0",
   "description": "Post-production studio UI for dolly recordings",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicmeriano/dolly.git",
+    "directory": "packages/studio"
+  },
   "type": "module",
   "main": "dist/server/index.js",
   "types": "dist/server/index.d.ts",
@@ -15,6 +21,7 @@
       "default": "./dist/server/index.js"
     }
   },
+  "files": ["dist"],
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc -p tsconfig.server.json",
@@ -24,8 +31,8 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit"
   },
   "dependencies": {
-    "@dolly/core": "workspace:*",
-    "@dolly/schema": "workspace:*",
+    "@nicmeriano/dolly-core": "workspace:*",
+    "@nicmeriano/dolly-schema": "workspace:*",
     "sirv": "^3.0.0"
   },
   "devDependencies": {

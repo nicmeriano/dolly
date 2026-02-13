@@ -3,7 +3,7 @@
  *
  * This module contains only the cursor rendering code that works in both
  * browser and Node environments (no fs, child_process, etc.).
- * Import via `@dolly/core/cursor` in browser bundles.
+ * Import via `@nicmeriano/dolly-core/cursor` in browser bundles.
  */
 export { renderCursorFrame } from "./cursor-renderer.js";
 export type { CursorRendererConfig, CursorRendererEnv } from "./cursor-renderer.js";

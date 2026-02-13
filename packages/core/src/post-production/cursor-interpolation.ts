@@ -1,4 +1,4 @@
-import type { CursorKeyframe } from "@dolly/schema";
+import type { CursorKeyframe } from "@nicmeriano/dolly-schema";
 
 /**
  * Binary search for the keyframe segment containing the given time (in ms).

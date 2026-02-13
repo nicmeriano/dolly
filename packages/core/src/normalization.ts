@@ -1,4 +1,4 @@
-import type { NormalizationConfig, CursorConfig } from "@dolly/schema";
+import type { NormalizationConfig, CursorConfig } from "@nicmeriano/dolly-schema";
 
 export function buildNormalizationCSS(config: NormalizationConfig): string {
   const rules: string[] = [];

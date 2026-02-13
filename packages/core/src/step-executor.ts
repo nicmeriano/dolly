@@ -1,5 +1,5 @@
 import type { Page } from "playwright";
-import type { Step } from "@dolly/schema";
+import type { Step } from "@nicmeriano/dolly-schema";
 import { StepError } from "./errors.js";
 import { resolveUrl } from "./url.js";
 import { TypedEmitter } from "./events.js";

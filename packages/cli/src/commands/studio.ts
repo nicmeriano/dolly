@@ -73,13 +73,13 @@ export const studioCommand = new Command("studio")
     console.log(chalk.dim(`  Starting server on port ${port}...\n`));
 
     try {
-      const { startStudio } = await import("@dolly/studio/server");
+      const { startStudio } = await import("@nicmeriano/dolly-studio/server");
       await startStudio({ recordingDir, port });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes("Cannot find module") || message.includes("MODULE_NOT_FOUND")) {
         console.error(chalk.red("Studio package not found."));
-        console.error(chalk.dim("  Make sure @dolly/studio is built: pnpm -r build"));
+        console.error(chalk.dim("  Make sure @nicmeriano/dolly-studio is built: pnpm -r build"));
       } else {
         console.error(chalk.red(`Failed to start studio: ${message}`));
       }

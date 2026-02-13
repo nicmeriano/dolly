@@ -1,7 +1,7 @@
 import { useRef, useEffect, useMemo } from "react";
 import { useStudio } from "../context/StudioContext";
-import { renderCursorFrame, getCursorShape } from "@dolly/core/cursor";
-import type { CursorRendererConfig, CursorRendererEnv } from "@dolly/core/cursor";
+import { renderCursorFrame, getCursorShape } from "@nicmeriano/dolly-core/cursor";
+import type { CursorRendererConfig, CursorRendererEnv } from "@nicmeriano/dolly-core/cursor";
 
 const env: CursorRendererEnv = { Path2D };
 

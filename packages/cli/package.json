@@ -1,21 +1,29 @@
 {
-  "name": "@dolly/cli",
+  "name": "@nicmeriano/dolly",
   "version": "0.1.0",
   "description": "CLI for dolly — record cinematic product demos",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicmeriano/dolly.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "bin": {
     "dolly": "dist/index.js"
   },
   "main": "dist/index.js",
+  "files": ["dist", "skills", ".claude-plugin", "scripts"],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
-    "@dolly/core": "workspace:*",
-    "@dolly/schema": "workspace:*",
-    "@dolly/studio": "workspace:*",
+    "@nicmeriano/dolly-core": "workspace:*",
+    "@nicmeriano/dolly-schema": "workspace:*",
+    "@nicmeriano/dolly-studio": "workspace:*",
     "chalk": "^5.3.0",
     "playwright": "^1.49.0",
     "commander": "^12.1.0",

@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
-import { readManifest, writeManifest, convertToMp4 } from "@dolly/core";
+import { readManifest, writeManifest, convertToMp4 } from "@nicmeriano/dolly-core";
 
 export const stitchCommand = new Command("stitch")
   .description("Convert a recorded .webm video to .mp4")
