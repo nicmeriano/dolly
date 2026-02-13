@@ -119,23 +119,58 @@ async function executeStepAction(
       const amount = step.amount;
       const deltaX = direction === "left" ? -amount : direction === "right" ? amount : 0;
       const deltaY = direction === "up" ? -amount : direction === "down" ? amount : 0;
+      const durationMs = options.fast ? 0 : step.duration;
 
-      if (step.target === "viewport") {
-        await page.mouse.wheel(deltaX, deltaY);
-      } else {
-        if (options.showCursor) {
-          await moveCursorTo(page, step.target, stepIndex, options);
-        }
-        await page.locator(step.target).evaluate(
-          (el, { dx, dy }) => {
-            el.scrollBy(dx, dy);
-          },
-          { dx: deltaX, dy: deltaY },
-        );
+      if (step.target !== "viewport" && options.showCursor) {
+        await moveCursorTo(page, step.target, stepIndex, options);
       }
 
-      if (!options.fast && step.duration) {
-        await page.waitForTimeout(step.duration);
+      if (durationMs > 0) {
+        // Smooth scroll: run a requestAnimationFrame loop inside the browser
+        // so intermediate positions are painted and captured by CDP screencast.
+        await page.evaluate(
+          ({ selector, dx, dy, ms }) => {
+            return new Promise<void>((resolve) => {
+              const el =
+                selector === "viewport"
+                  ? (document.scrollingElement ?? document.documentElement)
+                  : document.querySelector(selector);
+              if (!el) { resolve(); return; }
+
+              const startX = el.scrollLeft;
+              const startY = el.scrollTop;
+              const start = performance.now();
+
+              function easeInOut(t: number): number {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+              }
+
+              function frame(now: number) {
+                const t = Math.min((now - start) / ms, 1);
+                const eased = easeInOut(t);
+                el!.scrollTo(startX + dx * eased, startY + dy * eased);
+                if (t < 1) {
+                  requestAnimationFrame(frame);
+                } else {
+                  resolve();
+                }
+              }
+
+              requestAnimationFrame(frame);
+            });
+          },
+          { selector: step.target, dx: deltaX, dy: deltaY, ms: durationMs },
+        );
+      } else {
+        // Instant scroll (fast mode or duration: 0)
+        if (step.target === "viewport") {
+          await page.mouse.wheel(deltaX, deltaY);
+        } else {
+          await page.locator(step.target).evaluate(
+            (el, { dx, dy }) => { el.scrollBy(dx, dy); },
+            { dx: deltaX, dy: deltaY },
+          );
+        }
       }
       break;
     }
