@@ -2,8 +2,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
-import { validatePlan } from "@dolly/schema";
-import { test } from "@dolly/core";
+import { validatePlan } from "@nicmeriano/dolly-schema";
+import { test } from "@nicmeriano/dolly-core";
 
 export const testCommand = new Command("test")
   .description("Fast plan validation — runs all steps without video recording")

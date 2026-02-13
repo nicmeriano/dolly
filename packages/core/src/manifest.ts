@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { RecordingManifest } from "@dolly/schema";
+import type { RecordingManifest } from "@nicmeriano/dolly-schema";
 
 export async function writeManifest(
   outputDir: string,

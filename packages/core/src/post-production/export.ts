@@ -2,7 +2,7 @@ import * as path from "node:path";
 import * as fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
-import type { CursorKeyframesFile, PostProductionConfig } from "@dolly/schema";
+import type { CursorKeyframesFile, PostProductionConfig } from "@nicmeriano/dolly-schema";
 import { resolveFfmpegBinary } from "../ffmpeg.js";
 import { FfmpegError } from "../errors.js";
 import { getCursorShape } from "./cursor-shapes.js";

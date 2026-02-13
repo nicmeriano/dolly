@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { CursorKeyframesFile, PostProductionConfig, RecordingManifest } from "@dolly/schema";
-import { postProduce } from "@dolly/core";
+import type { CursorKeyframesFile, PostProductionConfig, RecordingManifest } from "@nicmeriano/dolly-schema";
+import { postProduce } from "@nicmeriano/dolly-core";
 
 export interface ExportResult {
   outputPath: string;

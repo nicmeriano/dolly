@@ -1,5 +1,5 @@
 import type { Page, BrowserContext } from "playwright";
-import type { Action, RetryConfig } from "@dolly/schema";
+import type { Action, RetryConfig } from "@nicmeriano/dolly-schema";
 import { executeStep } from "./step-executor.js";
 import { TypedEmitter } from "./events.js";
 import { StepError } from "./errors.js";

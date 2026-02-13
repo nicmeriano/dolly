@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { createReadStream, statSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-// Resolve click.wav from @dolly/core assets for canvas preview audio
+// Resolve click.wav from @nicmeriano/dolly-core assets for canvas preview audio
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CORE_ASSETS_DIR = path.resolve(__dirname, "../../../core/assets");
 

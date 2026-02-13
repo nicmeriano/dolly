@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora, { type Ora } from "ora";
-import type { TypedEmitter, RunEvents } from "@dolly/core";
+import type { TypedEmitter, RunEvents } from "@nicmeriano/dolly-core";
 
 export interface ConsoleFormatterOptions {
   verbose?: boolean;

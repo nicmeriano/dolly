@@ -2,8 +2,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Command } from "commander";
 import chalk from "chalk";
-import { validatePlan } from "@dolly/schema";
-import { run } from "@dolly/core";
+import { validatePlan } from "@nicmeriano/dolly-schema";
+import { run } from "@nicmeriano/dolly-core";
 import { attachConsoleFormatter } from "../formatters/console.js";
 
 export const recordCommand = new Command("record")

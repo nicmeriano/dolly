@@ -1,8 +1,8 @@
 import * as path from "node:path";
 import * as fs from "node:fs/promises";
 import { chromium } from "playwright";
-import type { Plan, RecordingManifest, CursorKeyframe, CursorKeyframesFile, PostProductionConfig } from "@dolly/schema";
-import { PostProductionConfigSchema } from "@dolly/schema";
+import type { Plan, RecordingManifest, CursorKeyframe, CursorKeyframesFile, PostProductionConfig } from "@nicmeriano/dolly-schema";
+import { PostProductionConfigSchema } from "@nicmeriano/dolly-schema";
 import { executeAction } from "./action-recorder.js";
 import { buildInitScript } from "./normalization.js";
 import { postProduce } from "./post-production/export.js";

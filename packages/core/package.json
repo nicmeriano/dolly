@@ -1,7 +1,13 @@
 {
-  "name": "@dolly/core",
+  "name": "@nicmeriano/dolly-core",
   "version": "0.1.0",
   "description": "Execution engine for dolly — record cinematic product demos with Playwright",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicmeriano/dolly.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,23 +21,21 @@
       "default": "./dist/post-production/cursor.js"
     }
   },
+  "files": ["dist", "assets"],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dolly/schema": "workspace:*",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@nicmeriano/dolly-schema": "workspace:*",
     "playwright": "^1.49.0"
   },
   "peerDependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@napi-rs/canvas": "^0.1.0"
   },
   "peerDependenciesMeta": {
-    "@ffmpeg-installer/ffmpeg": {
-      "optional": true
-    },
     "@napi-rs/canvas": {
       "optional": true
     }

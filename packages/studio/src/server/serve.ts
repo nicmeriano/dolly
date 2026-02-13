@@ -45,7 +45,7 @@ export async function startStudio(options: StartStudioOptions): Promise<void> {
       res.end(`<!DOCTYPE html>
 <html><body>
 <h1>Dolly Studio</h1>
-<p>Client not built. Run <code>pnpm --filter @dolly/studio build:client</code> first.</p>
+<p>Client not built. Run <code>pnpm --filter @nicmeriano/dolly-studio build:client</code> first.</p>
 </body></html>`);
     }
   });

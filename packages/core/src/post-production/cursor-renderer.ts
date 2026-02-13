@@ -1,4 +1,4 @@
-import type { CursorKeyframe, PostProductionCursor } from "@dolly/schema";
+import type { CursorKeyframe, PostProductionCursor } from "@nicmeriano/dolly-schema";
 import type { CursorShape } from "./cursor-shapes.js";
 import { interpolateCursor } from "./cursor-interpolation.js";
 
