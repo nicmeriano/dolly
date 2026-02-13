@@ -1,6 +1,6 @@
 {
   "name": "@nicmeriano/dolly-studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Post-production studio UI for dolly recordings",
   "license": "UNLICENSED",
   "repository": {
@@ -21,7 +21,9 @@
       "default": "./dist/server/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc -p tsconfig.server.json",
